@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 
 import com.example.pinchchicken.widget.PointView;
 import com.example.pinchchicken.widget.PressButton;
+import com.richpath.RichPathView;
 
 public class PinchActivity extends AppCompatActivity {
 
@@ -28,10 +29,13 @@ public class PinchActivity extends AppCompatActivity {
     private int playID = 0;
     private Button btn1;
     private ValueAnimator scaleAnimation;
-    private PointView pv;
     ProgressBar mProgressBar;
     private static final int MSG_PROGRESS_UPDATE = 0x110;
     private ProgressBar pb_org;
+
+    //
+    private RichPathView mChickenView;
+    private ChickenAnimate mChickenAnimate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +45,9 @@ public class PinchActivity extends AppCompatActivity {
         mProgressBar = findViewById(R.id.pb_org);
         btnPlay = findViewById(R.id.btn_play);
         btn1 = findViewById(R.id.btn1);
-        pv = findViewById(R.id.pv);
-        //        this.bezier = findViewById(R.id.bezier);
 
+        mChickenView = findViewById(R.id.chicken_view);
+        mChickenAnimate = new ChickenAnimate(this, mChickenView);
 
         btnPlay.setOnPressListener(new PressButton.OnPressListener() {
             @Override
@@ -51,15 +55,12 @@ public class PinchActivity extends AppCompatActivity {
                 soundPool = getSoundPool(PinchActivity.this, R.raw.fechick);
                 playID = playSound(soundPool);
 //                scaleAnimation = startAnimation(btn1);
-                pv.doPointAnimation(mProgressBar.getProgress());
                 mHandler.removeMessages(2);
                 mHandler.sendEmptyMessage(MSG_PROGRESS_UPDATE);
             }
 
             @Override
             public void onRelease() {
-                pv.stopPointAnimation();
-                pv.doPointSmallAnimation(mProgressBar.getProgress());
                 stopSound(soundPool, playID);
 //                stopAnimation(scaleAnimation);
                 mHandler.removeMessages(MSG_PROGRESS_UPDATE);
@@ -77,6 +78,7 @@ public class PinchActivity extends AppCompatActivity {
             switch (msg.what) {
                 case MSG_PROGRESS_UPDATE:
                     int progress = mProgressBar.getProgress();
+                    mChickenAnimate.animate(progress);
                     mProgressBar.setProgress(++progress);
                     if (progress >= 100) {
                         mHandler.removeMessages(MSG_PROGRESS_UPDATE);
@@ -85,6 +87,7 @@ public class PinchActivity extends AppCompatActivity {
                     break;
                 case 2:
                     int progress1 = mProgressBar.getProgress();
+                    mChickenAnimate.animate(progress1);
                     mProgressBar.setProgress(--progress1);
                     if (progress1 <= 0) {
                         mHandler.removeMessages(2);
