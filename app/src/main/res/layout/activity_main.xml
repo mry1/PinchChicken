@@ -2,43 +2,70 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:zhy="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.pinchchicken.PinchActivity">
 
     <Button
         android:id="@+id/btn1"
-        android:layout_centerHorizontal="true"
         android:layout_width="60dp"
-        android:text="button1"
+        android:layout_height="2000dp"
         android:layout_above="@id/btn_play"
-        android:layout_height="2000dp" />
+        android:layout_centerHorizontal="true"
+        android:text="button1"
+        android:visibility="gone" />
 
+    <com.example.pinchchicken.widget.Bezier2
+    android:id="@+id/bezier"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
 
-    <!--<Button-->
-        <!--android:id="@+id/btn2"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--android:layout_width="30dp"-->
-        <!--android:layout_above="@id/btn_play"-->
+    <ProgressBar
+        android:id="@+id/pb_org"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="15dp"
+        android:indeterminateOnly="false"
+        android:progressDrawable="@drawable/progress_vertical_style" />
 
-        <!--android:text="button2"-->
-        <!--android:layout_height="wrap_content" />-->
+    <!--<com.example.pinchchicken.widget.HorizontalProgressBarWithNumber-->
+        <!--android:id="@+id/progress_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@id/btn_play"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:indeterminateOnly="false"-->
+        <!--android:padding="5dp"-->
+        <!--android:progress="10"-->
+        <!--android:progressDrawable="@drawable/progress_vertical_style"-->
+        <!--zhy:progress_text_color="#ff2903FC"-->
+        <!--zhy:progress_unreached_color="#ffBCB4E8" />-->
+
+    <com.example.pinchchicken.widget.PointView
+        android:id="@+id/pv"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/btn_play"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true" />
 
     <com.example.pinchchicken.widget.PressButton
         android:id="@+id/btn_play"
-        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="按住开始捏小鸡"
-        />
+        android:layout_centerInParent="true"
+        android:text="按住开始捏小鸡" />
     <!--<Button-->
-        <!--android:id="@+id/btn_stop"-->
-        <!--android:layout_below="@id/btn_play"-->
-        <!--android:layout_centerInParent="true"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="停止"-->
-        <!--/>-->
+    <!--android:id="@+id/btn_stop"-->
+    <!--android:layout_below="@id/btn_play"-->
+    <!--android:layout_centerInParent="true"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="停止"-->
+    <!--/>-->
 
 
 </RelativeLayout>

@@ -1,61 +1,115 @@
 package com.example.pinchchicken;
 
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.BounceInterpolator;
-import android.view.animation.ScaleAnimation;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
+import com.example.pinchchicken.widget.PointView;
 import com.example.pinchchicken.widget.PressButton;
 
-public class PinchActivity extends AppCompatActivity implements ChickenView {
+public class PinchActivity extends AppCompatActivity {
 
     private PressButton btnPlay;
     private SoundPool soundPool;
     private int playID = 0;
     private Button btn1;
     private ValueAnimator scaleAnimation;
-    //    private Button btn2;
+    private PointView pv;
+    ProgressBar mProgressBar;
+    private static final int MSG_PROGRESS_UPDATE = 0x110;
+    private ProgressBar pb_org;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+//        mProgressBar = findViewById(R.id.progress_bar);
+        mProgressBar = findViewById(R.id.pb_org);
         btnPlay = findViewById(R.id.btn_play);
         btn1 = findViewById(R.id.btn1);
-//        btn2 = findViewById(R.id.btn2);
+        pv = findViewById(R.id.pv);
+        //        this.bezier = findViewById(R.id.bezier);
+
+
         btnPlay.setOnPressListener(new PressButton.OnPressListener() {
             @Override
             public void onPress() {
                 soundPool = getSoundPool(PinchActivity.this, R.raw.fechick);
                 playID = playSound(soundPool);
-                scaleAnimation = startAnimation(btn1);
+//                scaleAnimation = startAnimation(btn1);
+                pv.doPointAnimation(mProgressBar.getProgress());
+                mHandler.removeMessages(2);
+                mHandler.sendEmptyMessage(MSG_PROGRESS_UPDATE);
             }
 
             @Override
             public void onRelease() {
+                pv.stopPointAnimation();
+                pv.doPointSmallAnimation(mProgressBar.getProgress());
                 stopSound(soundPool, playID);
-                stopAnimation(scaleAnimation);
+//                stopAnimation(scaleAnimation);
+                mHandler.removeMessages(MSG_PROGRESS_UPDATE);
+                mHandler.sendEmptyMessage(2);
+
             }
         });
 
 
     }
 
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case MSG_PROGRESS_UPDATE:
+                    int progress = mProgressBar.getProgress();
+                    mProgressBar.setProgress(++progress);
+                    if (progress >= 100) {
+                        mHandler.removeMessages(MSG_PROGRESS_UPDATE);
+                    }
+                    mHandler.sendEmptyMessageDelayed(MSG_PROGRESS_UPDATE, 20);
+                    break;
+                case 2:
+                    int progress1 = mProgressBar.getProgress();
+                    mProgressBar.setProgress(--progress1);
+                    if (progress1 <= 0) {
+                        mHandler.removeMessages(2);
+                    }
+                    mHandler.sendEmptyMessageDelayed(2, 20);
+                    break;
+            }
+
+
+        }
+
+
+    };
+
     public ValueAnimator startAnimation(final View v) {
 
-        ValueAnimator animator = ValueAnimator.ofInt(0, 600);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+        ObjectAnimator colorAnimator1 = ObjectAnimator.ofInt(v, "BackgroundColor", 0xffff00ff, 0xffffff00, 0xffff00ff);
+        colorAnimator1.setDuration(1000);
+        colorAnimator1.setEvaluator(new ArgbEvaluator());
+//        animator1.setRepeatMode(ValueAnimator.REVERSE);
+//        animator1.start();
+
+        ValueAnimator translateAnimator = ValueAnimator.ofInt(0, 600);
+        translateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 int value = (int) animation.getAnimatedValue();
@@ -63,18 +117,23 @@ public class PinchActivity extends AppCompatActivity implements ChickenView {
                 v.layout(v.getLeft(), value, v.getRight(), value + v.getHeight());
             }
         });
-        animator.setDuration(1000);
-        animator.setInterpolator(new BounceInterpolator());
-        animator.setRepeatCount(ValueAnimator.INFINITE);
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        animator.start();
 
 
+        translateAnimator.setDuration(1000);
+        translateAnimator.setInterpolator(new BounceInterpolator());
+//        translateAnimator.setRepeatCount(ValueAnimator.INFINITE);
+//        translateAnimator.setRepeatMode(ValueAnimator.REVERSE);
+//        translateAnimator.start();
+
+        AnimatorSet set = new AnimatorSet();
+        AnimatorSet.Builder builder = set.play(colorAnimator1);
+        builder.before(translateAnimator);
+        set.start();
 //        ScaleAnimation scaleAnimation = new ScaleAnimation(0.0f, 1.4f, 0.0f, 1.4f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 //        scaleAnimation.setDuration(700);
 //        scaleAnimation.setFillAfter(true);
 //        v.startAnimation(scaleAnimation);
-        return animator;
+        return translateAnimator;
     }
 
     public void stopAnimation(ValueAnimator a) {
