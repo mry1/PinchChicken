@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
 import android.widget.Button;
@@ -43,6 +44,7 @@ public class PinchActivity extends AppCompatActivity {
         btn1 = findViewById(R.id.btn1);
         pv = findViewById(R.id.pv);
         //        this.bezier = findViewById(R.id.bezier);
+
 
 
         btnPlay.setOnPressListener(new PressButton.OnPressListener() {

@@ -7,8 +7,12 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.widget.Scroller;
 
 /**
  * Created by louis on 17-12-28.
@@ -66,6 +70,10 @@ public class Bezier2 extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        VelocityTracker velocityTracker = VelocityTracker.obtain();
+        velocityTracker.addMovement(event);
+        velocityTracker.computeCurrentVelocity(1000);
+
 
         // 根据触摸位置更新控制点，并提示重绘
         if (mode) {
@@ -76,6 +84,7 @@ public class Bezier2 extends View {
             control2.y = event.getY();
         }
         invalidate();
+
         return true;
     }
 
@@ -83,6 +92,7 @@ public class Bezier2 extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         //drawCoordinateSystem(canvas);
+
 
         // 绘制数据点和控制点
         mPaint.setColor(Color.GRAY);
