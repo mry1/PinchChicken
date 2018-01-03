@@ -33,7 +33,7 @@
         android:orientation="vertical">
 
         <com.richpath.RichPathView
-            android:id="@+id/chicken_view"
+            android:id="@+id/chicken_view1"
             android:layout_width="match_parent"
             android:layout_height="400dp"
             android:layout_gravity="center"
