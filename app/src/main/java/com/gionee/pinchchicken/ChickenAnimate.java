@@ -1,4 +1,4 @@
-package com.example.pinchchicken;
+package com.gionee.pinchchicken;
 
 import android.content.Context;
 import android.util.Log;

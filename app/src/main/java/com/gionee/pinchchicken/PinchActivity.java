@@ -1,13 +1,14 @@
-package com.example.pinchchicken;
+package com.gionee.pinchchicken;
 
 import android.annotation.SuppressLint;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 
-import com.example.pinchchicken.widget.PressButton;
+import com.gionee.pinchchicken.widget.PressButton;
 import com.richpath.RichPathView;
 
 import butterknife.BindView;
@@ -27,9 +28,8 @@ public class PinchActivity extends AppCompatActivity {
     ProgressBar mProgressBar;
     @BindView(R.id.chicken_view1)
     RichPathView mChickenView;
-    ChickenAnimate mChickenAnimate;
 
-
+    private ChickenAnimate mChickenAnimate;
     private SoundPool soundPool;
     private int playID = 0;
     private Unbinder unbinder;
@@ -42,6 +42,15 @@ public class PinchActivity extends AppCompatActivity {
 
         mChickenAnimate = new ChickenAnimate(this, mChickenView);
         soundPool = SoundUtils.getSoundPool(PinchActivity.this, R.raw.fechick);
+
+        ViewTreeObserver viewTreeObserver = mChickenView.getViewTreeObserver();
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+            }
+        });
+
 
         btnPlay.setOnPressListener(new PressButton.OnPressListener() {
             @Override

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "com.example.pinchchicken"
+        applicationId "com.gionee.pinchchicken"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1

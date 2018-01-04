@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    tools:context="com.example.pinchchicken.PinchActivity">
+    tools:context="com.gionee.pinchchicken.PinchActivity">
 
     <Button
         android:id="@+id/btn1"
@@ -40,7 +40,7 @@
             android:paddingLeft="50dp"
             app:vector="@drawable/ic_bird" />
 
-        <com.example.pinchchicken.widget.PressButton
+        <com.gionee.pinchchicken.widget.PressButton
             android:id="@+id/btn_play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
