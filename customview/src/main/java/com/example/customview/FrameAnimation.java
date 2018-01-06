@@ -15,6 +15,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -40,7 +41,7 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
     private int totalCount;//资源总数
     private Canvas mCanvas;
     private Bitmap mBitmap;// 显示的图片
-    private WeakReference<Bitmap> bitmap;
+    private SparseArray<WeakReference<Bitmap>> weakBitmaps;
 
     private int mCurrentIndex;// 当前动画播放的位置
     private int mGapTime = 200;// 每帧动画持续存在的时间
@@ -49,10 +50,11 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
     public static final int FLAG_PLAY_IN_REVERSE_ORDER = 1;
     public static final int FLAG_INIT = 2;
     private int flag = FLAG_PLAY_IN_ORDER;
-    private final String TAG = FrameAnimation.class.getSimpleName();
 
+    private final String TAG = FrameAnimation.class.getSimpleName();
     private OnFrameFinishedListener mOnFrameFinishedListener;// 动画监听事件
     private AnimThread animThread;
+    private BitmapFactory.Options options;
 
     public FrameAnimation(Context context) {
         this(context, null);
@@ -78,6 +80,10 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
         // 白色背景
         setZOrderOnTop(true);
         setZOrderMediaOverlay(true);
+        options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        weakBitmaps = new SparseArray<WeakReference<Bitmap>>();
+
     }
 
     @Override
@@ -189,13 +195,27 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
 
                 mCanvas.drawColor(Color.WHITE);
 
+                WeakReference<Bitmap> bitmap = weakBitmaps.get(mCurrentIndex);
                 if (mBitmapResourceIds != null && mBitmapResourceIds.length > 0) {
-                    Log.d(TAG, "=======" + mCurrentIndex);
-                    mBitmap = BitmapFactory.decodeResource(getResources(), mBitmapResourceIds[mCurrentIndex]);
-                    bitmap = new WeakReference<>(mBitmap);
+//                    Log.d(TAG, "=======" + mCurrentIndex);
+                    if (bitmap == null) {
+                        Log.d(TAG, "bitmap == null");
+                        mBitmap = BitmapFactory.decodeResource(getResources(), mBitmapResourceIds[mCurrentIndex]);
+                        weakBitmaps.put(mCurrentIndex, new WeakReference<>(mBitmap));
+                    } else {
+                        Log.d(TAG, "bitmap != null");
+                        mBitmap = bitmap.get();
+                    }
+//                    bitmap = new WeakReference<>(mBitmap);
                 } else if (mBitmapResourcePaths != null && mBitmapResourcePaths.size() > 0) {
-                    mBitmap = BitmapFactory.decodeFile(mBitmapResourcePaths.get(mCurrentIndex));
-                    bitmap = new WeakReference<>(mBitmap);
+                    if (bitmap == null) {
+//                        Log.d(TAG, "bitmap == null");
+                        mBitmap = BitmapFactory.decodeFile(mBitmapResourcePaths.get(mCurrentIndex));
+                        weakBitmaps.put(mCurrentIndex, new WeakReference<>(mBitmap));
+                    } else {
+//                        Log.d(TAG, "bitmap != null");
+                        mBitmap = bitmap.get();
+                    }
                 }
 
                 Paint paint = new Paint();
@@ -211,7 +231,9 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
                 mCanvas.drawPaint(paint);
                 paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 
+//                Log.d(TAG, "============" + mBitmap);
                 mCanvas.drawBitmap(mBitmap, mSrcRect, mDestRect, paint);
+
 
                 // 播放到最后一张图片
                 if (mCurrentIndex == totalCount - 1) {
@@ -257,6 +279,9 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
                 // 收回图片
                 mBitmap.recycle();
             }
+//            if (mBitmap.isRecycled()) {
+//                mBitmap.recycle();
+//            }
         }
     }
 
