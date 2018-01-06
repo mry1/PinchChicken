@@ -15,6 +15,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.LruCache;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
@@ -36,6 +37,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     private Canvas mCanvas;
     private Bitmap mBitmap;// 显示的图片
     private SparseArray<WeakReference<Bitmap>> weakBitmaps;
+    private LruCache<Integer, Bitmap> lruBitmap;
 
     private int mCurrentIndex;// 当前动画播放的位置
     private int mGapTime = 200;// 每帧动画持续存在的时间
@@ -78,6 +80,17 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
         options.inJustDecodeBounds = true;
         weakBitmaps = new SparseArray<WeakReference<Bitmap>>();
 
+        // LruCache通过构造函数传入缓存值，以KB为单位。
+        int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        // 使用最大可用内存值的1/8作为缓存的大小。
+        int cacheSize = maxMemory / 4;
+        lruBitmap = new LruCache<Integer, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(Integer key, Bitmap bitmap) {
+                // 重写此方法来衡量每张图片的大小，默认返回图片数量。
+                return bitmap.getByteCount() / 1024;
+            }
+        };
     }
 
     @Override
@@ -167,6 +180,16 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
         this.flag = flag;
     }
 
+    public void addBitmapToMemoryCache(int key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            lruBitmap.put(key, bitmap);
+        }
+    }
+
+    public Bitmap getBitmapFromMemCache(int key) {
+        return lruBitmap.get(key);
+    }
+
     /**
      * 制图方法
      */
@@ -189,27 +212,20 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
 
                 mCanvas.drawColor(Color.WHITE);
 
-                WeakReference<Bitmap> bitmap = weakBitmaps.get(mCurrentIndex);
+                mBitmap = getBitmapFromMemCache(mCurrentIndex);
                 if (mBitmapResourceIds != null && mBitmapResourceIds.length > 0) {
-//                    Log.d(TAG, "=======" + mCurrentIndex);
-                    mBitmap = BitmapFactory.decodeResource(getResources(), mBitmapResourceIds[mCurrentIndex]);
-
-//                    if (bitmap == null) {
-//                        Log.d(TAG, "bitmap == null");
-//                        mBitmap = BitmapFactory.decodeResource(getResources(), mBitmapResourceIds[mCurrentIndex]);
-//                        weakBitmaps.put(mCurrentIndex, new WeakReference<>(mBitmap));
-//                    } else {
-//                        Log.d(TAG, "bitmap != null");
-//                        mBitmap = bitmap.get();
-//                    }
-                } else if (mBitmapResourcePaths != null && mBitmapResourcePaths.size() > 0) {
-                    if (bitmap == null) {
-//                        Log.d(TAG, "bitmap == null");
-                        mBitmap = BitmapFactory.decodeFile(mBitmapResourcePaths.get(mCurrentIndex));
-                        weakBitmaps.put(mCurrentIndex, new WeakReference<>(mBitmap));
+                    if (mBitmap == null) {
+                        Log.d(TAG, "bitmap == null======" + lruBitmap.putCount());
+                        mBitmap = BitmapFactory.decodeResource(getResources(), mBitmapResourceIds[mCurrentIndex]);
+                        addBitmapToMemoryCache(mCurrentIndex, mBitmap);
                     } else {
-//                        Log.d(TAG, "bitmap != null");
-                        mBitmap = bitmap.get();
+                        Log.d(TAG, "bitmap != null");
+
+                    }
+                } else if (mBitmapResourcePaths != null && mBitmapResourcePaths.size() > 0) {
+                    if (mBitmap == null) {
+                        mBitmap = BitmapFactory.decodeFile(mBitmapResourcePaths.get(mCurrentIndex));
+                        addBitmapToMemoryCache(mCurrentIndex, mBitmap);
                     }
                 }
 
