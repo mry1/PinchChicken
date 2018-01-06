@@ -1,15 +1,13 @@
 package com.gionee.pinchchicken;
 
-import android.annotation.SuppressLint;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.view.ViewTreeObserver;
-import android.widget.ProgressBar;
+import android.util.Log;
+import android.view.MotionEvent;
 
-import com.gionee.pinchchicken.widget.PressButton;
-import com.richpath.RichPathView;
+import com.gionee.pinchchicken.bean.BgSrc;
+import com.gionee.pinchchicken.widget.FrameAnimation;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -18,21 +16,14 @@ import butterknife.Unbinder;
 public class PinchActivity extends AppCompatActivity {
 
 
-    private static final int MSG_PROGRESS_UP = 0x110;
-    private static final int MSG_PROGRESS_DOWN = 0x120;
-    private static final int DELAY_MILLS = 20;
+    @BindView(R.id.frame_animation)
+    FrameAnimation mFrameAnimation;
 
-    @BindView(R.id.btn_play)
-    PressButton btnPlay;
-    @BindView(R.id.pb_org)
-    ProgressBar mProgressBar;
-    @BindView(R.id.chicken_view1)
-    RichPathView mChickenView;
-
-    private ChickenAnimate mChickenAnimate;
     private SoundPool soundPool;
     private int playID = 0;
     private Unbinder unbinder;
+
+    private final String TAG = PinchActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,36 +31,54 @@ public class PinchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         unbinder = ButterKnife.bind(this);
 
-        mChickenAnimate = new ChickenAnimate(this, mChickenView);
         soundPool = SoundUtils.getSoundPool(PinchActivity.this, R.raw.fechick);
 
-        ViewTreeObserver viewTreeObserver = mChickenView.getViewTreeObserver();
-        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
+        initAnimation();
+    }
 
-            }
-        });
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                //手指放下
+//                mFrameAnimation.setCurrentIndext(0);
+                mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
+                mFrameAnimation.start();
 
 
-        btnPlay.setOnPressListener(new PressButton.OnPressListener() {
-            @Override
-            public void onPress() {
                 playID = SoundUtils.playSound(soundPool);
-                mHandler.removeMessages(MSG_PROGRESS_DOWN);
-                mHandler.sendEmptyMessage(MSG_PROGRESS_UP);
+                break;
+            case MotionEvent.ACTION_UP:
+                //手指抬起
+                mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_REVERSE_ORDER);
+
+                SoundUtils.stopSound(soundPool, playID);
+
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    private void initAnimation() {
+        //设置资源文件
+        mFrameAnimation.setBitmapResoursID(BgSrc.srcId);
+        //设置监听事件
+        mFrameAnimation.setOnFrameFinisedListener(new FrameAnimation.OnFrameFinishedListener() {
+            @Override
+            public void onStop() {
+                Log.e(TAG, "stop");
+
             }
 
             @Override
-            public void onRelease() {
-                SoundUtils.stopSound(soundPool, playID);
-                mHandler.removeMessages(MSG_PROGRESS_UP);
-                mHandler.sendEmptyMessage(MSG_PROGRESS_DOWN);
-
+            public void onStart() {
+                Log.e(TAG, "start");
+                Log.e(TAG, Runtime.getRuntime().totalMemory() / 1024 + "k");
             }
         });
-
-
+        mFrameAnimation.setFlag(FrameAnimation.FLAG_INIT);
+        //设置单张图片展示时长
+        mFrameAnimation.setGapTime(150);
     }
 
     @Override
@@ -77,36 +86,6 @@ public class PinchActivity extends AppCompatActivity {
         super.onDestroy();
         unbinder.unbind();
     }
-
-    @SuppressLint("HandlerLeak")
-    private Handler mHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case MSG_PROGRESS_UP:
-                    int progress = mProgressBar.getProgress();
-                    mChickenAnimate.animate(progress);
-                    mProgressBar.setProgress(++progress);
-                    if (progress >= 100) {
-                        mHandler.removeMessages(MSG_PROGRESS_UP);
-                    }
-                    mHandler.sendEmptyMessageDelayed(MSG_PROGRESS_UP, DELAY_MILLS);
-                    break;
-                case MSG_PROGRESS_DOWN:
-                    int progress1 = mProgressBar.getProgress();
-                    mChickenAnimate.animate(progress1);
-                    mProgressBar.setProgress(--progress1);
-                    if (progress1 <= 0) {
-                        mHandler.removeMessages(MSG_PROGRESS_DOWN);
-                    }
-                    mHandler.sendEmptyMessageDelayed(MSG_PROGRESS_DOWN, DELAY_MILLS);
-                    break;
-            }
-
-
-        }
-
-
-    };
 
 
 }

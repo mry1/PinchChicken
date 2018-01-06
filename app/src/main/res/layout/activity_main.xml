@@ -7,47 +7,11 @@
     android:orientation="horizontal"
     tools:context="com.gionee.pinchchicken.PinchActivity">
 
-    <Button
-        android:id="@+id/btn1"
-        android:layout_width="60dp"
-        android:layout_height="2000dp"
-        android:layout_above="@id/btn_play"
-        android:layout_centerHorizontal="true"
-        android:text="button1"
-        android:visibility="gone" />
 
-
-    <ProgressBar
-        android:id="@+id/pb_org"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="30dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="30dp"
-        android:indeterminateOnly="false"
-        android:progressDrawable="@drawable/progress_vertical_style" />
-
-    <LinearLayout
+    <com.gionee.pinchchicken.widget.FrameAnimation
+        android:id="@+id/frame_animation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <com.richpath.RichPathView
-            android:id="@+id/chicken_view1"
-            android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:layout_gravity="center"
-            android:paddingLeft="50dp"
-            app:vector="@drawable/ic_bird" />
-
-        <com.gionee.pinchchicken.widget.PressButton
-            android:id="@+id/btn_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="按住开始捏小鸡" />
-
-    </LinearLayout>
+        android:layout_height="match_parent" />
 
 
 </LinearLayout>
