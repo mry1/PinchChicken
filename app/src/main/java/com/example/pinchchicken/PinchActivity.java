@@ -10,10 +10,9 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
 import android.widget.Button;
@@ -46,14 +45,13 @@ public class PinchActivity extends AppCompatActivity {
         //        this.bezier = findViewById(R.id.bezier);
 
 
-
         btnPlay.setOnPressListener(new PressButton.OnPressListener() {
             @Override
             public void onPress() {
                 soundPool = getSoundPool(PinchActivity.this, R.raw.fechick);
                 playID = playSound(soundPool);
 //                scaleAnimation = startAnimation(btn1);
-                pv.doPointAnimation(mProgressBar.getProgress());
+                pv.doPointScaleOutAnimation(mProgressBar.getProgress());
                 mHandler.removeMessages(2);
                 mHandler.sendEmptyMessage(MSG_PROGRESS_UPDATE);
             }
@@ -61,7 +59,7 @@ public class PinchActivity extends AppCompatActivity {
             @Override
             public void onRelease() {
                 pv.stopPointAnimation();
-                pv.doPointSmallAnimation(mProgressBar.getProgress());
+                pv.doPointScaleInAnimation(mProgressBar.getProgress());
                 stopSound(soundPool, playID);
 //                stopAnimation(scaleAnimation);
                 mHandler.removeMessages(MSG_PROGRESS_UPDATE);

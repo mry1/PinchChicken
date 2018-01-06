@@ -52,7 +52,7 @@ public class PointView extends View {
     }
 
 
-    public void doPointAnimation(int progress) {
+    public void doPointScaleOutAnimation(int progress) {
         animator = ValueAnimator.ofObject(new PointEvaluator(), new Point(progress), new Point(100));
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -61,16 +61,15 @@ public class PointView extends View {
                 invalidate();
             }
         });
-        DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        String format = decimalFormat.format((float) (100 - progress) / 100);
-        animator.setDuration((long) (2000 * Float.parseFloat(format)));
+        float v = (float) (100 - progress) / 100;
+        animator.setDuration((long) (2000 * v));
 //        animator.setRepeatCount(ValueAnimator.INFINITE);
 //        animator.setRepeatMode(ValueAnimator.REVERSE);
 //        animator.setInterpolator(new AccelerateDecelerateInterpolator());
         animator.start();
     }
 
-    public void doPointSmallAnimation(int progress) {
+    public void doPointScaleInAnimation(int progress) {
         smallAnimation = ValueAnimator.ofObject(new PointEvaluator(), new Point(progress), new Point(0));
         smallAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -79,7 +78,9 @@ public class PointView extends View {
                 invalidate();
             }
         });
-        smallAnimation.setDuration(2000 * (progress / 200));
+
+        float v = (float) progress / 100;
+        smallAnimation.setDuration((long) (2000 * v));
 //        smallAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
         smallAnimation.start();
     }

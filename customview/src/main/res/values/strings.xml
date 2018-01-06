@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CustomView</string>
+    <integer name="duration">20</integer>
+</resources>
