@@ -20,6 +20,9 @@ import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.example.util.AnimationBitmap;
+import com.example.util.AnimationLoader;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -29,8 +32,8 @@ import java.util.ArrayList;
  * Date:2016/11/4
  * Email:65489469@qq.com
  */
-class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
-
+class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, AnimationLoader.AnimationLoaderListener {
+    private Context mContext;
     private SurfaceHolder mSurfaceHolder;
 
     private boolean mIsThreadRunning = true; // 线程运行开关
@@ -56,23 +59,28 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
     private AnimThread animThread;
     private BitmapFactory.Options options;
 
+    private AnimationLoader mAnimationLoader;
+    private AnimationBitmap mAnimationBitmap;
+    private int mLoadMode;
+
     public FrameAnimation(Context context) {
         this(context, null);
-        initView();
+        initView(context);
     }
 
     public FrameAnimation(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        initView();
+        initView(context);
     }
 
     public FrameAnimation(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-        initView();
+        initView(context);
 
     }
 
-    private void initView() {
+    private void initView(Context context) {
+        mContext = context;
 
         mSurfaceHolder = this.getHolder();
         mSurfaceHolder.addCallback(this);
@@ -83,6 +91,10 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
         options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         weakBitmaps = new SparseArray<WeakReference<Bitmap>>();
+
+        mAnimationLoader = AnimationLoader.getLoaderInstance();
+        mAnimationLoader.setAnimationLoaderListener(this);
+        mLoadMode = AnimationLoader.MODE_INCREASE;
 
     }
 
@@ -107,6 +119,17 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
 //
 //        mIsDestroy = true;
         Log.d(TAG, "===surfaceView被销毁");
+    }
+
+    @Override
+    public void onLoad(AnimationBitmap animationBitmap) {
+
+    }
+
+    @Override
+    public void onLoaderCreated(AnimationBitmap animationBitmap) {
+        this.mAnimationBitmap = animationBitmap;
+        this.totalCount = animationBitmap.getBitmapNum();
     }
 
     public void setCurrentIndext(int index) {
@@ -141,6 +164,7 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+
     public class AnimThread extends Thread {
         @Override
         public void run() {
@@ -171,6 +195,12 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
 
     public void setFlag(int flag) {
         this.flag = flag;
+        if (flag == FLAG_PLAY_IN_ORDER) {
+            mLoadMode = AnimationLoader.MODE_INCREASE;
+        }
+        if (flag == FLAG_PLAY_IN_REVERSE_ORDER) {
+            mLoadMode = AnimationLoader.MODE_DECREASE;
+        }
     }
 
     /**
@@ -195,34 +225,16 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
 
                 mCanvas.drawColor(Color.WHITE);
 
-                WeakReference<Bitmap> bitmap = weakBitmaps.get(mCurrentIndex);
-                if (mBitmapResourceIds != null && mBitmapResourceIds.length > 0) {
-//                    Log.d(TAG, "=======" + mCurrentIndex);
-                    if (bitmap == null) {
-                        Log.d(TAG, "bitmap == null");
-                        mBitmap = BitmapFactory.decodeResource(getResources(), mBitmapResourceIds[mCurrentIndex]);
-                        weakBitmaps.put(mCurrentIndex, new WeakReference<>(mBitmap));
-                    } else {
-                        Log.d(TAG, "bitmap != null");
-                        mBitmap = bitmap.get();
-                    }
-//                    bitmap = new WeakReference<>(mBitmap);
-                } else if (mBitmapResourcePaths != null && mBitmapResourcePaths.size() > 0) {
-                    if (bitmap == null) {
-//                        Log.d(TAG, "bitmap == null");
-                        mBitmap = BitmapFactory.decodeFile(mBitmapResourcePaths.get(mCurrentIndex));
-                        weakBitmaps.put(mCurrentIndex, new WeakReference<>(mBitmap));
-                    } else {
-//                        Log.d(TAG, "bitmap != null");
-                        mBitmap = bitmap.get();
-                    }
+                if (!mAnimationBitmap.contain(mCurrentIndex)) {
+                    mAnimationLoader.loadResources(mContext, mCurrentIndex, mLoadMode);
                 }
+                Bitmap bitmap = mAnimationBitmap.get(mCurrentIndex);
 
                 Paint paint = new Paint();
                 paint.setAntiAlias(true);
                 paint.setStyle(Paint.Style.STROKE);
                 Rect mSrcRect, mDestRect;
-                mSrcRect = new Rect(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+                mSrcRect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
                 mDestRect = new Rect(0, 0, getWidth(), getHeight());
 
                 // 清屏
@@ -232,7 +244,7 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
                 paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 
 //                Log.d(TAG, "============" + mBitmap);
-                mCanvas.drawBitmap(mBitmap, mSrcRect, mDestRect, paint);
+                mCanvas.drawBitmap(bitmap, mSrcRect, mDestRect, paint);
 
 
                 // 播放到最后一张图片
@@ -292,7 +304,7 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void setBitmapResoursID(int[] bitmapResourceIds) {
         this.mBitmapResourceIds = bitmapResourceIds;
-        totalCount = bitmapResourceIds.length;
+//        totalCount = bitmapResourceIds.length;
     }
 
     /**
