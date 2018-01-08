@@ -1,0 +1,9 @@
+{
+  "defaultAnimation": "chicken",
+  "animations": [
+    {
+      "name":"chicken",
+      "path":"chicken"
+    }
+  ]
+}
