@@ -7,6 +7,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -15,6 +16,8 @@ import java.io.IOException;
  */
 
 public class SoundUtils {
+
+    private static final String TAG = "SoundUtils";
 
     /**
      * 播放声音 不能同时播放多种音频
@@ -53,12 +56,10 @@ public class SoundUtils {
 
     /**
      * 获取SoundPool
-     *
-     * @param context
-     * @param rawId
      * @return
      */
-    public static SoundPool getSoundPool(Context context, int rawId) {
+    public static SoundPool getSoundPool() {
+        Log.d(TAG, "getSoundPool: success");
         SoundPool soundPool;
         if (Build.VERSION.SDK_INT >= 21) {
             SoundPool.Builder builder = new SoundPool.Builder();
@@ -74,8 +75,6 @@ public class SoundUtils {
             //第一个参数是可以支持的声音数量，第二个是声音类型，第三个是声音品质
             soundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 5);
         }
-        //第一个参数Context,第二个参数资源Id，第三个参数优先级
-        soundPool.load(context, rawId, 1);
         return soundPool;
     }
 
@@ -85,13 +84,16 @@ public class SoundUtils {
      * @param soundPool
      * @return
      */
-    public static int playSound(SoundPool soundPool) {
+    public static int playSound(SoundPool soundPool,Context context, int rawId) {
+        //第一个参数Context,第二个参数资源Id，第三个参数优先级
+        soundPool.load(context, rawId, 1);
         final int[] playID = {0};
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             //第一个参数id，即传入池中的顺序，第二个和第三个参数为左右声道，第四个参数为优先级，第五个是否循环播放，0不循环，-1循环
             //最后一个参数播放比率，范围0.5到2，通常为1表示正常播放
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                Log.d(TAG, "playSound: success");
                 playID[0] = soundPool.play(1, 1, 1, 0, -1, 1);
             }
         });
@@ -103,6 +105,7 @@ public class SoundUtils {
      * 停止播放
      */
     public static void stopSound(SoundPool soundPool, int playID) {
+        Log.d(TAG, "stopSound: success");
         soundPool.stop(playID);
         //回收Pool中的资源
         soundPool.release();

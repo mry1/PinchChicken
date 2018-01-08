@@ -19,9 +19,9 @@ public class PinchActivity extends AppCompatActivity {
     @BindView(R.id.frame_animation)
     FrameAnimation mFrameAnimation;
 
-    private SoundPool soundPool;
     private int playID = 0;
     private Unbinder unbinder;
+    private SoundPool soundPool;
 
     private final String TAG = PinchActivity.class.getSimpleName();
 
@@ -30,9 +30,7 @@ public class PinchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         unbinder = ButterKnife.bind(this);
-
-        soundPool = SoundUtils.getSoundPool(PinchActivity.this, R.raw.fechick);
-
+        
         initAnimation();
     }
 
@@ -41,12 +39,11 @@ public class PinchActivity extends AppCompatActivity {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //手指放下
-//                mFrameAnimation.setCurrentIndext(0);
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
                 mFrameAnimation.start();
-
-
-                playID = SoundUtils.playSound(soundPool);
+                soundPool = SoundUtils.getSoundPool();
+                playID = SoundUtils.playSound(soundPool,PinchActivity.this,R.raw.fechick);
+                Log.d(TAG, "onTouchEvent: playID = " + playID);
                 break;
             case MotionEvent.ACTION_UP:
                 //手指抬起
@@ -77,8 +74,6 @@ public class PinchActivity extends AppCompatActivity {
             }
         });
         mFrameAnimation.setFlag(FrameAnimation.FLAG_INIT);
-        //设置单张图片展示时长
-        mFrameAnimation.setGapTime(150);
     }
 
     @Override
