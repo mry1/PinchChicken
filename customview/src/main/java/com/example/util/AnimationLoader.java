@@ -29,8 +29,6 @@ import java.util.concurrent.Executors;
  */
 
 public class AnimationLoader {
-    public static final int MODE_INCREASE = 11;
-    public static final int MODE_DECREASE = 12;
     private static final String TAG = "AnimationLoader";
     private static final int DECODE_THREADS = 2;
     private static final int MSG_LOAD = 1;
@@ -112,51 +110,47 @@ public class AnimationLoader {
         }
     }
 
-//    public synchronized void loadResources(Context context, int from, int to) {
-//        if (from < 0) {
-//            return;
-//        }
-//        Log.d(TAG, "loadResources: from " + from + " to " + to);
-//        try {
-//            if (mAnimationList == null) {
-//                loadAnimationList(context);
-//            }
-//            if (Thread.currentThread() != mThread) {
-//                Message msg = Message.obtain();
-//                msg.obj = context;
-//                msg.arg1 = from;
-//                msg.arg2 = to;
-//                msg.what = MSG_LOAD;
-//                mHandler.sendMessage(msg);
-//                return;
-//            }
-//            if (mDefaultAnimation != null) {
-////                if (mListener != null) {
-////                    mListener.onLoad(mAnimationBitmap);
-////                }
-//                AssetManager assetManager = context.getAssets();
-//                String parentPath = mDefaultAnimation.getPath();
-//                String path;
-//                String[] resList = mDefaultAnimation.getResList();
-//                if (resList != null && to < resList.length) {
-//                    for (int i = from; i < to; i++) {
-//                        path = parentPath + File.separator + resList[i];
-//                        mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
-//                    }
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-
-    public synchronized void loadResources(Context context, int resId, int mode) {
-        if (resId < 0) {
+    public synchronized void loadResources(Context context, int from, int to) {
+        if (from < 0) {
             return;
         }
-        if (mode != MODE_INCREASE && mode != MODE_DECREASE) {
-            Log.e(TAG, "loadResources: unsupported load mode");
+        Log.d(TAG, "loadResources: from " + from + " to " + to);
+        try {
+            if (mAnimationList == null) {
+                loadAnimationList(context);
+            }
+            if (Thread.currentThread() != mThread) {
+                Message msg = Message.obtain();
+                msg.obj = context;
+                msg.arg1 = from;
+                msg.arg2 = to;
+                msg.what = MSG_LOAD;
+                mHandler.sendMessage(msg);
+                return;
+            }
+            if (mDefaultAnimation != null) {
+//                if (mListener != null) {
+//                    mListener.onLoad(mAnimationBitmap);
+//                }
+                AssetManager assetManager = context.getAssets();
+                String parentPath = mDefaultAnimation.getPath();
+                String path;
+                String[] resList = mDefaultAnimation.getResList();
+                if (resList != null && to < resList.length) {
+                    for (int i = from; i < to; i++) {
+                        path = parentPath + File.separator + resList[i];
+                        mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public synchronized void loadResources(Context context, int resId) {
+        if (resId < 0) {
             return;
         }
         try {
@@ -167,7 +161,6 @@ public class AnimationLoader {
                 Message msg = Message.obtain();
                 msg.obj = context;
                 msg.arg1 = resId;
-                msg.arg2 = mode;
                 msg.what = MSG_LOAD_SINGLE;
                 mHandler.sendMessage(msg);
                 return;
@@ -178,24 +171,19 @@ public class AnimationLoader {
                 String path;
                 String[] resList = mDefaultAnimation.getResList();
                 if (resList != null) {
-                    switch (mode) {
-                        case MODE_DECREASE:
-                            for (int i = resId; i > resId - 3 && i > 0; i--) {
-                                if (!mAnimationBitmap.contain(i)) {
-                                    path = parentPath + File.separator + resList[i];
-                                    mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
-                                }
-                            }
-                            break;
-                        case MODE_INCREASE:
-                            for (int i = resId; i < resId + 3 & i < 100; i++) {
-                                if (!mAnimationBitmap.contain(i))
-                                    Log.d(TAG, "loadResources: "+i);{
-                                    path = parentPath + File.separator + resList[i];
-                                    mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
-                                }
-                            }
-                            break;
+                    for (int i = resId; i > resId - 3 && i >= 0; i--) {
+                        if (!mAnimationBitmap.contain(i)) {
+                            path = parentPath + File.separator + resList[i];
+                            mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
+                        }
+                    }
+                    for (int i = resId; i < resId + 3 & i < mAnimationBitmap.getBitmapNum(); i++) {
+                        if (!mAnimationBitmap.contain(i))
+                            Log.d(TAG, "loadResources: " + i);
+                        {
+                            path = parentPath + File.separator + resList[i];
+                            mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
+                        }
                     }
 
                 }
@@ -282,8 +270,7 @@ public class AnimationLoader {
                 case MSG_LOAD_SINGLE: {
                     Context context = (Context) msg.obj;
                     int resId = msg.arg1;
-                    int mode = msg.arg2;
-                    loadResources(context, resId, mode);
+                    loadResources(context, resId);
                     break;
                 }
             }

@@ -21,7 +21,7 @@ public class AnimationBitmap {
     private final LruCache<Integer, Bitmap> cache;
     private final Set<SoftReference<Bitmap>> recycleBitmap = Collections.synchronizedSet(new HashSet<SoftReference<Bitmap>>());
 
-    private final int MAX_SIZE = 6;
+    private final int MAX_SIZE = 10;
     private final Object lock = new Object();
 
     public int getBitmapNum() {
@@ -65,7 +65,6 @@ public class AnimationBitmap {
 
 
     public synchronized Bitmap get(int key) {
-        Log.d("weisc", "get: "+key);
         Bitmap bitmap;
         while ((cache.get(key)) == null) {
             try {
@@ -76,14 +75,14 @@ public class AnimationBitmap {
                 e.printStackTrace();
             }
         }
-        Log.d("weisc", "get: ");
+        Log.d("weisc", "get: "+key);
         bitmap = cache.remove(key);
         notify();
         return bitmap;
     }
 
     public boolean contain(int key) {
-        return cache.get(key) == null;
+        return !(cache.get(key) == null);
     }
 
     protected Bitmap getBitmapFromReusableSet() {

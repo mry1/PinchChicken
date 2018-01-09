@@ -61,7 +61,6 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, Anim
 
     private AnimationLoader mAnimationLoader;
     private AnimationBitmap mAnimationBitmap;
-    private int mLoadMode;
 
     public FrameAnimation(Context context) {
         this(context, null);
@@ -94,7 +93,6 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, Anim
 
         mAnimationLoader = AnimationLoader.getLoaderInstance();
         mAnimationLoader.setAnimationLoaderListener(this);
-        mLoadMode = AnimationLoader.MODE_INCREASE;
 
     }
 
@@ -195,12 +193,6 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, Anim
 
     public void setFlag(int flag) {
         this.flag = flag;
-        if (flag == FLAG_PLAY_IN_ORDER) {
-            mLoadMode = AnimationLoader.MODE_INCREASE;
-        }
-        if (flag == FLAG_PLAY_IN_REVERSE_ORDER) {
-            mLoadMode = AnimationLoader.MODE_DECREASE;
-        }
     }
 
     /**
@@ -215,7 +207,6 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, Anim
 
             return;
         }
-
         // 锁定画布
         if (mSurfaceHolder != null) {
             mCanvas = mSurfaceHolder.lockCanvas();
@@ -225,10 +216,12 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, Anim
 
                 mCanvas.drawColor(Color.WHITE);
 
-                if (!mAnimationBitmap.contain(mCurrentIndex)) {
-                    mAnimationLoader.loadResources(mContext, mCurrentIndex, mLoadMode);
-                }
+//                if (mAnimationBitmap == null || !mAnimationBitmap.contain(mCurrentIndex)) {
+//                }
+                mAnimationLoader.loadResources(mContext, mCurrentIndex);
+                long start = System.currentTimeMillis();
                 Bitmap bitmap = mAnimationBitmap.get(mCurrentIndex);
+                Log.d("timetest", "get cost" + (System.currentTimeMillis() - start));
 
                 Paint paint = new Paint();
                 paint.setAntiAlias(true);
