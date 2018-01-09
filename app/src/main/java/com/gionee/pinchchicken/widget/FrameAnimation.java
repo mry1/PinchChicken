@@ -56,6 +56,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     private BitmapFactory.Options options;
     private DiskLruCache.Editor edit;
     private SparseArray<Bitmap> bitmapSparseArray;
+    private long l1;
 
     public FrameAnimation(Context context) {
         this(context, null);
@@ -168,6 +169,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                 mOnFrameFinishedListener.onStart();
             }
 
+            l1 = SystemClock.currentThreadTimeMillis();
             // 每隔mGapTime刷新屏幕
             while (mIsThreadRunning) {
 //                Log.d(TAG, "========");
@@ -243,21 +245,11 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                     }
                 }
 
-                Paint paint = new Paint();
-                paint.setAntiAlias(true);
-                paint.setStyle(Paint.Style.STROKE);
-
-                // 清屏
-                paint.setXfermode(new PorterDuffXfermode(
-                        PorterDuff.Mode.CLEAR));
-                mCanvas.drawPaint(paint);
-                paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-
                 Matrix mMatrix = new Matrix();
                 mMatrix.postScale((float) getWidth() / mBitmap.getWidth(),
                         (float) getHeight() / mBitmap.getHeight());
                 long l = SystemClock.currentThreadTimeMillis();
-                mCanvas.drawBitmap(mBitmap, mMatrix, paint);
+                mCanvas.drawBitmap(mBitmap, mMatrix, null);
 //                Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l));
 
                 // 播放到最后一张图片
@@ -284,6 +276,9 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                 case FLAG_PLAY_IN_ORDER:
                     mCurrentIndex++;
 
+                    if (mCurrentIndex == 100) {
+                        Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l1));
+                    }
                     break;
                 case FLAG_PLAY_IN_REVERSE_ORDER:
                     mCurrentIndex--;
