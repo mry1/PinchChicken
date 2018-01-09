@@ -26,6 +26,7 @@ public class AnimationBitmap {
     private final Object lock = new Object();
 
     private final SparseIntArray testMap = new SparseIntArray();
+    private final SparseIntArray removeInFuture = new SparseIntArray();
 
     public int getBitmapNum() {
         return bitmapNum;
@@ -56,15 +57,19 @@ public class AnimationBitmap {
         Log.d("check", "put: " + key);
         if (cache.size() == MAX_SIZE) {
             try {
-//                Log.d("check", "put before wait " + key);
+                Log.d("lock", "put before wait " + key);
                 wait();
-//                Log.d("check", "put after wait " + key);
+                Log.d("lock", "put after wait " + key);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        cache.put(key, bitmap);
-        testMap.put(key, key);
+        if (removeInFuture.get(key, -1) == -1) {
+            cache.put(key, bitmap);
+            testMap.put(key, key);
+        } else {
+            removeInFuture.delete(key);
+        }
         Log.d("check", "put key " + key + " key map : " + testMap.toString());
         notify();
     }
@@ -74,15 +79,15 @@ public class AnimationBitmap {
         Bitmap bitmap;
         while ((cache.get(key)) == null) {
             try {
-//                Log.d("check", "get before wait " + key);
+                Log.d("lock", "get before wait " + key);
                 wait();
-//                Log.d("check", "get after wait " + key);
+                Log.d("lock", "get after wait " + key);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         Log.d("check", "get key " + key + " key map : " + testMap.toString());
-//        Log.d("check", "get: cache size " + cache.size() + " recycleBitmap size " + recycleBitmap.size());
+        Log.d("check", "get: cache size " + cache.size() + " recycleBitmap size " + recycleBitmap.size());
 
         bitmap = cache.get(key);
         notify();
@@ -90,6 +95,11 @@ public class AnimationBitmap {
     }
 
     public synchronized void remove(int key) {
+        if (key >= 0 && !contain(key)) {
+            removeInFuture.put(key, key);
+            Log.d("check", "remove in future: " + removeInFuture);
+            return;
+        }
         cache.remove(key);
         notify();
     }
