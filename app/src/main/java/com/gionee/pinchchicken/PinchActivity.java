@@ -41,12 +41,12 @@ public class PinchActivity extends AppCompatActivity {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //手指放下
-//                mFrameAnimation.setCurrentIndext(0);
+                playID = SoundUtils.playSound(soundPool);
+
+                // mFrameAnimation.setCurrentIndext(0);
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
                 mFrameAnimation.start();
 
-
-                playID = SoundUtils.playSound(soundPool);
                 break;
             case MotionEvent.ACTION_UP:
                 //手指抬起
