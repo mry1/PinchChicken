@@ -8,8 +8,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.IdRes;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 import com.google.gson.Gson;
 
@@ -43,6 +43,8 @@ public class AnimationLoader {
     private final AnimationBitmap mAnimationBitmap = new AnimationBitmap();
 
     private final ExecutorService mThreadPool;
+    private final SparseIntArray jobs = new SparseIntArray();
+    private boolean mFirst;
 
 
     private AnimationLoader() {
@@ -51,6 +53,7 @@ public class AnimationLoader {
         mHandler = new AnimationLoaderHandler(mThread.getLooper());
 
         mThreadPool = Executors.newFixedThreadPool(DECODE_THREADS);
+        mFirst = true;
     }
 
     public synchronized static AnimationLoader getLoaderInstance() {
@@ -171,20 +174,52 @@ public class AnimationLoader {
                 String path;
                 String[] resList = mDefaultAnimation.getResList();
                 if (resList != null) {
-                    for (int i = resId; i > resId - 3 && i >= 0; i--) {
-                        if (!mAnimationBitmap.contain(i)) {
+                    if (mFirst || (!mAnimationBitmap.contain(resId) && jobs.get(resId, -1) == -1)) {
+                        mFirst = false;
+                        mAnimationBitmap.clear();
+                        Log.d("check", "loadResources full ");
+                        int start = resId - 3 < 0 ? 0 : resId - 3;
+                        int end = resId + 3 > resList.length - 1 ? resList.length - 1 : resId + 3;
+                        Log.d("check", "loadResources: key " + resId + "end " + end);
+                        for (int i = start; i <= end; i++) {
                             path = parentPath + File.separator + resList[i];
-                            mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
+                            if (jobs.get(i, -1) == -1) {
+                                mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
+                                jobs.put(i, i);
+                            }
                         }
-                    }
-                    for (int i = resId; i < resId + 3 & i < mAnimationBitmap.getBitmapNum(); i++) {
-                        if (!mAnimationBitmap.contain(i))
-                            Log.d(TAG, "loadResources: " + i);
-                        {
-                            path = parentPath + File.separator + resList[i];
-                            mThreadPool.execute(new DecodeBitmapThread(assetManager, path, i));
+                    } else {
+                        int right = resId + 3, left = resId - 3;
+                        int needLoad = 0;
+                        if (mAnimationBitmap.contain(left) && !mAnimationBitmap.contain(right)) {
+                            if (right < resList.length) {
+                                needLoad = right;
+                                mAnimationBitmap.remove(left - 1);
+                                Log.d("check", "loadResources: remove " + (left - 1));
+                            }
                         }
+                        if (!mAnimationBitmap.contain(left) && mAnimationBitmap.contain(right)) {
+                            if (left >= 0) {
+                                needLoad = left;
+                                mAnimationBitmap.remove(right + 1);
+                                Log.d("check", "loadResources: remove " + (right + 1));
+                            }
+                        }
+                        if (!mAnimationBitmap.contain(left) && !mAnimationBitmap.contain(right)) {
+                            if (left < 0) {
+                                needLoad = right;
+                            }
+                        }
+
+                        path = parentPath + File.separator + resList[needLoad];
+                        if (jobs.get(needLoad, -1) == -1 && needLoad != 0) {
+                            jobs.put(needLoad, needLoad);
+                            Log.d("check", "loadResources: load " + needLoad);
+                            mThreadPool.execute(new DecodeBitmapThread(assetManager, path, needLoad));
+                        }
+
                     }
+
 
                 }
 
@@ -216,6 +251,7 @@ public class AnimationLoader {
 
 
     private class DecodeBitmapThread implements Runnable {
+
         AssetManager assetManager;
         String path;
         int key;
@@ -232,6 +268,8 @@ public class AnimationLoader {
                 InputStream inputStream = assetManager.open(path);
                 Bitmap bitmap = decodeBitmapFromStream(inputStream);
                 mAnimationBitmap.put(key, bitmap);
+                jobs.delete(key);
+                Log.d("check", "job finish "+key);
                 inputStream.close();
             } catch (Exception e) {
                 e.printStackTrace();

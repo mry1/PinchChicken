@@ -3,6 +3,7 @@ package com.example.util;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.LruCache;
+import android.util.SparseIntArray;
 
 import java.lang.ref.SoftReference;
 import java.util.Collections;
@@ -24,6 +25,8 @@ public class AnimationBitmap {
     private final int MAX_SIZE = 10;
     private final Object lock = new Object();
 
+    private final SparseIntArray testMap = new SparseIntArray();
+
     public int getBitmapNum() {
         return bitmapNum;
     }
@@ -43,23 +46,26 @@ public class AnimationBitmap {
                                         Bitmap oldValue, Bitmap newValue) {
                 recycleBitmap.add
                         (new SoftReference<>(oldValue));
+                testMap.delete(key);
             }
         };
 
     }
 
     public synchronized void put(int key, Bitmap bitmap) {
-        Log.d("weisc", "put: "+key);
+        Log.d("check", "put: " + key);
         if (cache.size() == MAX_SIZE) {
             try {
-                Log.d("weisc", "put before wait " + key);
+//                Log.d("check", "put before wait " + key);
                 wait();
-                Log.d("weisc", "put after wait " + key);
+//                Log.d("check", "put after wait " + key);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         cache.put(key, bitmap);
+        testMap.put(key, key);
+        Log.d("check", "put key " + key + " key map : " + testMap.toString());
         notify();
     }
 
@@ -68,20 +74,46 @@ public class AnimationBitmap {
         Bitmap bitmap;
         while ((cache.get(key)) == null) {
             try {
-                Log.d("weisc", "get before wait " + key);
+//                Log.d("check", "get before wait " + key);
                 wait();
-                Log.d("weisc", "get after wait " + key);
+//                Log.d("check", "get after wait " + key);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        Log.d("weisc", "get: "+key);
-        bitmap = cache.remove(key);
+        Log.d("check", "get key " + key + " key map : " + testMap.toString());
+//        Log.d("check", "get: cache size " + cache.size() + " recycleBitmap size " + recycleBitmap.size());
+
+        bitmap = cache.get(key);
         notify();
         return bitmap;
     }
 
-    public boolean contain(int key) {
+    public synchronized void remove(int key) {
+        cache.remove(key);
+        notify();
+    }
+
+    public void clear() {
+        cache.evictAll();
+    }
+
+    public synchronized void removeUnusedCache(int key) {
+        for (int i = 0; i <= key - 3; i++) {
+            cache.remove(i);
+        }
+        for (int i = key + 3; i < bitmapNum; i++) {
+            cache.remove(i);
+        }
+        notify();
+
+    }
+
+    public boolean isFull() {
+        return cache.size() == MAX_SIZE;
+    }
+
+    public synchronized boolean contain(int key) {
         return !(cache.get(key) == null);
     }
 
