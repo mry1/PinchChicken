@@ -28,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
 //        iv = findViewById(R.id.iv);
 //        picIndex = 0x7f060001;
 //        mHandler.sendEmptyMessage(2);
-        mFrameAnimation = (FrameAnimation) findViewById(R.id.frame_animation);
-
-        initAnimation();
+//        mFrameAnimation = (FrameAnimation) findViewById(R.id.frame_animation);
+//
+//        initAnimation();
     }
 
     private void initAnimation() {
@@ -63,20 +63,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                //手指放下
-//                mFrameAnimation.setCurrentIndext(0);
-                mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
-                mFrameAnimation.start();
-
-                break;
-            case MotionEvent.ACTION_UP:
-                //手指抬起
-                mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_REVERSE_ORDER);
-
-                break;
-        }
+//        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                //手指放下
+////                mFrameAnimation.setCurrentIndext(0);
+//                mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
+//                mFrameAnimation.start();
+//
+//                break;
+//            case MotionEvent.ACTION_UP:
+//                //手指抬起
+//                mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_REVERSE_ORDER);
+//
+//                break;
+//        }
         return super.onTouchEvent(event);
     }
 

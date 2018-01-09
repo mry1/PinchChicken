@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.customview.MainActivity">
 
-    <com.example.customview.FrameAnimation
+    <com.example.customview.CustomView
         android:id="@+id/frame_animation"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

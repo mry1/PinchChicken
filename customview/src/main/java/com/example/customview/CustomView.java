@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Region;
+import android.graphics.RegionIterator;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -90,11 +92,31 @@ public class CustomView extends View {
 //        paint.setColor(Color.BLACK);
 //        canvas.drawTextOnPath("风萧萧兮易水寒", CCWRecPath, 0, 20, paint);
 
-        paint.setTextSize(80);//设置文字大小
-        //绘图样式，设置为填充
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawText("欢迎光临Harvic的博客", 10,100, paint);
+//        paint.setTextSize(80);//设置文字大小
+//        //绘图样式，设置为填充
+//        paint.setStyle(Paint.Style.FILL);
+//        canvas.drawText("欢迎光临Harvic的博客", 10, 100, paint);
+
+
+        // 构造一个椭圆路径
+        RectF rect = new RectF(80, 50, 200, 400);
+        Path path = new Path();
+        path.addOval(rect, Path.Direction.CCW);
+        Region region = new Region();
+        region.setPath(path, new Region(new Rect(50, 50, 200, 200)));
+        drawRegion(canvas, paint, region);
+
+    }
+
+    private void drawRegion(Canvas canvas, Paint paint, Region region) {
+        RegionIterator regionIterator = new RegionIterator(region);
+        Rect rect = new Rect();
+        while (regionIterator.next(rect)) {
+            canvas.drawRect(rect, paint);
+        }
 
 
     }
+
+
 }
