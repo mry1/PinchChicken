@@ -124,6 +124,16 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
         clearLruCache();
     }
 
+    /**
+     * liminglin
+     *
+     * 获取当前播放进度
+     * @return
+     */
+    public int getmCurrentIndex() {
+        return mCurrentIndex;
+    }
+
     public void setCurrentIndext(int index) {
         this.mCurrentIndex = index;
     }

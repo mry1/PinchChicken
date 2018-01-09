@@ -40,7 +40,16 @@ public class BgSrc {
             R.drawable.a0091, R.drawable.a0092, R.drawable.a0093, R.drawable.a0094,
             R.drawable.a0095, R.drawable.a0096, R.drawable.a0097,
             R.drawable.a0098, R.drawable.a0099, R.drawable.a0100
+    };
 
+    /**
+     * liminglin
+     *
+     * 添加声音资源
+     */
+    public static int[] rawIds = {
+            R.raw.background,R.raw.sound_1,R.raw.sound_2,
+            R.raw.sound_3, R.raw.sound_4,R.raw.sound_5
     };
 
 }
