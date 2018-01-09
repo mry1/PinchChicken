@@ -173,7 +173,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
 //                Log.d(TAG, "========");
                 drawView();
                 try {
-//                    Thread.sleep(mGapTime);
+//                    Thread.sleep(mCurrentIndex);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

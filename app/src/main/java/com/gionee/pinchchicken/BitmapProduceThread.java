@@ -34,9 +34,15 @@ public class BitmapProduceThread extends Thread {
         super.run();
         // 不断创建bitmap
         while (mCurrentIndex <= 100) {
-            Bitmap mBitmap = BitmapFactory.decodeStream(context.getResources().openRawResource(mBitmapResourceIds[mCurrentIndex]), null, options);
-            addBitmapToMemoryCache(mCurrentIndex, mBitmap);
-            mCurrentIndex++;
+            try {
+                // 实例化Bitmap
+                Bitmap mBitmap = BitmapFactory.decodeStream(context.getResources().openRawResource(mBitmapResourceIds[mCurrentIndex]), null, options);
+                addBitmapToMemoryCache(mCurrentIndex, mBitmap);
+                mCurrentIndex++;
+
+            } catch (OutOfMemoryError e) {
+
+            }
         }
 
     }
