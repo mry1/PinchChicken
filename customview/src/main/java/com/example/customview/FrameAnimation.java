@@ -175,7 +175,9 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, Anim
             // 每隔mGapTime刷新屏幕
             while (mIsThreadRunning) {
 //                Log.d(TAG, "========");
+                long start = System.currentTimeMillis();
                 drawView();
+                Log.d("timec", "run: "+(System.currentTimeMillis()-start));
                 try {
 //                    Thread.sleep(mGapTime);
                 } catch (Exception e) {
@@ -200,13 +202,13 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, Anim
      */
     private void drawView() {
         // 无资源文件退出
-        if (mBitmapResourceIds == null && mBitmapResourcePaths == null) {
-            Log.e("frameview", "the bitmapsrcIDs is null");
-
-            mIsThreadRunning = false;
-
-            return;
-        }
+//        if (mBitmapResourceIds == null && mBitmapResourcePaths == null) {
+//            Log.e("frameview", "the bitmapsrcIDs is null");
+//
+//            mIsThreadRunning = false;
+//
+//            return;
+//        }
         // 锁定画布
         if (mSurfaceHolder != null) {
             mCanvas = mSurfaceHolder.lockCanvas();
@@ -216,29 +218,16 @@ class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback, Anim
 
                 mCanvas.drawColor(Color.WHITE);
 
-//                if (mAnimationBitmap == null || !mAnimationBitmap.contain(mCurrentIndex)) {
-//                }
+               
                 mAnimationLoader.loadResources(mContext, mCurrentIndex);
-                long start = System.currentTimeMillis();
+                long start =System.currentTimeMillis();
                 Bitmap bitmap = mAnimationBitmap.get(mCurrentIndex);
-                Log.d("timetest", "get cost" + (System.currentTimeMillis() - start));
+                long end=System.currentTimeMillis();
+                Log.d("timec", "get  cost " +(end-start));
 
-                Paint paint = new Paint();
-                paint.setAntiAlias(true);
-                paint.setStyle(Paint.Style.STROKE);
-                Rect mSrcRect, mDestRect;
-                mSrcRect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-                mDestRect = new Rect(0, 0, getWidth(), getHeight());
+                mCanvas.drawBitmap(bitmap, 0, 0, null);
 
-                // 清屏
-                paint.setXfermode(new PorterDuffXfermode(
-                        PorterDuff.Mode.CLEAR));
-                mCanvas.drawPaint(paint);
-                paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-
-//                Log.d(TAG, "============" + mBitmap);
-                mCanvas.drawBitmap(bitmap, mSrcRect, mDestRect, paint);
-
+                Log.d("timec", "draw  cost " +(System.currentTimeMillis()-end));
 
                 // 播放到最后一张图片
                 if (mCurrentIndex == totalCount - 1) {

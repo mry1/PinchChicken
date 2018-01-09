@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initAnimation() {
         //设置资源文件
-        mFrameAnimation.setBitmapResoursID(BgSrc.srcId);
+//        mFrameAnimation.setBitmapResoursID(BgSrc.srcId);
         //设置监听事件
         mFrameAnimation.setOnFrameFinisedListener(new FrameAnimation.OnFrameFinishedListener() {
             @Override
