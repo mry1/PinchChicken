@@ -252,14 +252,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                 mCanvas.drawBitmap(mBitmap, mMatrix, null);
 //                Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l));
 
-                // 播放到最后一张图片
-                if (mCurrentIndex == totalCount - 1) {
-                    //TODO 设置重复播放
-                    //播放到最后一张，当前index置零
-//                    mCurrentIndex = 0;
-                }
-
-
                 if (mBitmap != null) {
                     // 收回图片
                     if (mBitmap.isRecycled()) {
@@ -306,13 +298,13 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                 }
             }
 
-            if (mBitmap != null) {
-                // 收回图片
-                if (mBitmap.isRecycled()) {
-                    mBitmap.recycle();
-                    mBitmap = null;
-                }
-            }
+//            if (mBitmap != null) {
+//                // 收回图片
+//                if (mBitmap.isRecycled()) {
+//                    mBitmap.recycle();
+//                    mBitmap = null;
+//                }
+//            }
         }
     }
 
