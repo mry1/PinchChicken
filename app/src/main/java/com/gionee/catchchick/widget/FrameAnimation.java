@@ -13,14 +13,12 @@ import android.graphics.Matrix;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.gionee.catchchick.BitmapProduceThread;
-
-import java.util.ArrayList;
+import com.gionee.catchchick.utils.CacheUtils;
 
 public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -33,7 +31,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     private int totalCount;//资源总数
     private Canvas mCanvas;
     private Bitmap mBitmap;// 显示的图片
-    private LruCache<Integer, Bitmap> lruBitmap;
 
 
     private int mCurrentIndex;// 当前动画播放的位置
@@ -77,23 +74,14 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
         options = new BitmapFactory.Options();
         options.inSampleSize = 1;
         options.inPreferredConfig = Bitmap.Config.ALPHA_8;
-        // LruCache通过构造函数传入缓存值，以KB为单位。
-        int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        // 使用最大可用内存值的1/2作为缓存的大小。
-        int cacheSize = maxMemory * 4 / 5;
-        lruBitmap = new LruCache<Integer, Bitmap>(cacheSize) {
-            @Override
-            protected int sizeOf(Integer key, Bitmap bitmap) {
-                // 重写此方法来衡量每张图片的大小，默认返回图片数量。
-                return bitmap.getByteCount() / 1024;
-//                return bitmap.getRowBytes() * bitmap.getHeight() / 1024;
-            }
-        };
+//        options.inMutable = true;
+
 
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        CacheUtils.init();
         start();
     }
 
@@ -114,7 +102,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
 //
 //        mIsDestroy = true;
         Log.d(TAG, "===surfaceView被销毁");
-        clearLruCache();
+        CacheUtils.clearLruCache();
     }
 
     /**
@@ -129,7 +117,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     }
 
 
-    public void setCurrentIndext(int index) {
+    public void setCurrentIndex(int index) {
         this.mCurrentIndex = index;
     }
 
@@ -142,12 +130,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
         }
     }
 
-    public void clearLruCache() {
-        if (lruBitmap != null) {
-            lruBitmap.evictAll();
-            lruBitmap = null;
-        }
-    }
 
     /**
      * 开始动画
@@ -157,7 +139,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
             mIsThreadRunning = true;
             animThread = new AnimThread();
             animThread.start();
-            new BitmapProduceThread(mCurrentIndex, getContext(), lruBitmap, options, mBitmapResourceIds).start();
+            new BitmapProduceThread(mCurrentIndex, getContext(), options, mBitmapResourceIds).start();
         } else {
             // 如果SurfaceHolder已经销毁抛出该异常
             try {
@@ -201,15 +183,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
         this.flag = flag;
     }
 
-    public void addBitmapToMemoryCache(int key, Bitmap bitmap) {
-        if (getBitmapFromMemCache(key) == null) {
-            lruBitmap.put(key, bitmap);
-        }
-    }
-
-    public Bitmap getBitmapFromMemCache(int key) {
-        return lruBitmap == null ? null : lruBitmap.get(key);
-    }
 
     /**
      * 制图方法
@@ -233,14 +206,14 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
 
                 mCanvas.drawColor(Color.WHITE);
 
-                mBitmap = getBitmapFromMemCache(mCurrentIndex);
+                mBitmap = CacheUtils.getBitmapFromMemCache(mCurrentIndex);
                 if (mBitmapResourceIds != null && mBitmapResourceIds.length > 0) {
                     if (mBitmap == null) {
 //                        Log.d(TAG, "bitmap == null======" + lruBitmap.size());
                         long l = SystemClock.currentThreadTimeMillis();
                         mBitmap = BitmapFactory.decodeStream(getResources().openRawResource(mBitmapResourceIds[mCurrentIndex]), null, options);
 //                        Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l));
-                        addBitmapToMemoryCache(mCurrentIndex, mBitmap);
+                        CacheUtils.addBitmapToMemoryCache(mCurrentIndex, mBitmap);
 
                     } else {
 //                        Log.d(TAG, "bitmap != null");

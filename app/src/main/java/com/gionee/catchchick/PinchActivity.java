@@ -58,7 +58,7 @@ public class PinchActivity extends AppCompatActivity {
                 //手指放下
                 playID = SoundUtils.playSound(soundPool,this,R.raw.fechick);
                 playMusic();
-                // mFrameAnimation.setCurrentIndext(0);
+                // mFrameAnimation.setCurrentIndex(0);
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
 //                mFrameAnimation.start();
 
