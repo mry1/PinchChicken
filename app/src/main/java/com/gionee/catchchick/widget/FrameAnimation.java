@@ -17,8 +17,7 @@ import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.gionee.catchchick.BitmapProduceThread;
-import com.gionee.catchchick.utils.CacheUtils;
+import com.gionee.catchchick.utils.BitmapLoader;
 
 public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -46,6 +45,9 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     private BitmapFactory.Options options;
     private long l1;
     private boolean isSetDrawing = true;// 当处于第一帧和最后一帧时不让界面不断重绘
+
+    private BitmapLoader mBitmapLoader;
+    private Context mContext;
 
     public FrameAnimation(Context context) {
         this(context, null);
@@ -77,11 +79,14 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
 //        options.inMutable = true;
 
 
+        mContext = context;
+
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        CacheUtils.init();
+//        CacheUtils.init();
+        mBitmapLoader = BitmapLoader.getLoaderInstance();
         start();
     }
 
@@ -102,7 +107,8 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
 //
 //        mIsDestroy = true;
         Log.d(TAG, "===surfaceView被销毁");
-        CacheUtils.clearLruCache();
+//        CacheUtils.clearLruCache();
+        mBitmapLoader.destroy();
     }
 
     /**
@@ -139,7 +145,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
             mIsThreadRunning = true;
             animThread = new AnimThread();
             animThread.start();
-            new BitmapProduceThread(mCurrentIndex, getContext(), options, mBitmapResourceIds).start();
+//            new BitmapProduceThread(mCurrentIndex, getContext(), mBitmapLoader, mBitmapResourceIds).start();
         } else {
             // 如果SurfaceHolder已经销毁抛出该异常
             try {
@@ -205,22 +211,9 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
             if (mSurfaceHolder != null && mCanvas != null) {
 
                 mCanvas.drawColor(Color.WHITE);
-
-                mBitmap = CacheUtils.getBitmapFromMemCache(mCurrentIndex);
-                if (mBitmapResourceIds != null && mBitmapResourceIds.length > 0) {
-                    if (mBitmap == null) {
-//                        Log.d(TAG, "bitmap == null======" + lruBitmap.size());
-                        long l = SystemClock.currentThreadTimeMillis();
-                        mBitmap = BitmapFactory.decodeStream(getResources().openRawResource(mBitmapResourceIds[mCurrentIndex]), null, options);
-//                        Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l));
-                        CacheUtils.addBitmapToMemoryCache(mCurrentIndex, mBitmap);
-
-                    } else {
-//                        Log.d(TAG, "bitmap != null");
-
-                    }
-                }
-
+                long start = System.currentTimeMillis();
+                mBitmap = mBitmapLoader.loadResources(mContext, mCurrentIndex);
+                Log.d("timec", "drawView: cost " + (System.currentTimeMillis() - start));
                 Matrix mMatrix = new Matrix();
                 mMatrix.postScale((float) getWidth() / mBitmap.getWidth(),
                         (float) getHeight() / mBitmap.getHeight());
