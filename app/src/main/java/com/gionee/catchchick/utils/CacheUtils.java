@@ -1,4 +1,4 @@
-package com.gionee.pinchchicken.utils;
+package com.gionee.catchchick.utils;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;

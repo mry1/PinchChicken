@@ -1,4 +1,4 @@
-package com.gionee.pinchchicken;
+package com.gionee.catchchick;
 
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import com.gionee.pinchchicken.bean.BgSrc;
-import com.gionee.pinchchicken.widget.FrameAnimation;
+import com.gionee.catchchick.bean.BgSrc;
+import com.gionee.catchchick.widget.FrameAnimation;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,7 +60,7 @@ public class PinchActivity extends AppCompatActivity {
                 playMusic();
                 // mFrameAnimation.setCurrentIndext(0);
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
-                mFrameAnimation.start();
+//                mFrameAnimation.start();
 
                 break;
             case MotionEvent.ACTION_UP:

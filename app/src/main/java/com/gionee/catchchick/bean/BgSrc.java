@@ -1,7 +1,7 @@
-package com.gionee.pinchchicken.bean;
+package com.gionee.catchchick.bean;
 
 
-import com.gionee.pinchchicken.R;
+import com.gionee.catchchick.R;
 
 /**
  * Created by louis on 18-1-6.
