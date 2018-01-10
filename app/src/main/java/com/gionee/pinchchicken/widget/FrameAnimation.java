@@ -54,8 +54,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     private OnFrameFinishedListener mOnFrameFinishedListener;// 动画监听事件
     private AnimThread animThread;
     private BitmapFactory.Options options;
-    private DiskLruCache.Editor edit;
-    private SparseArray<Bitmap> bitmapSparseArray;
     private long l1;
 
     public FrameAnimation(Context context) {
@@ -107,6 +105,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
     }
 
     @Override
@@ -126,13 +125,15 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
 
     /**
      * liminglin
-     *
+     * <p>
      * 获取当前播放进度
+     *
      * @return
      */
     public int getmCurrentIndex() {
         return mCurrentIndex;
     }
+
 
     public void setCurrentIndext(int index) {
         this.mCurrentIndex = index;
@@ -288,7 +289,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                     break;
                 case FLAG_INIT:
                     mCurrentIndex = 0;
-                    mIsThreadRunning = false;
+//                    mIsThreadRunning = false;
                     break;
             }
 
@@ -298,7 +299,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
             }
             if (mCurrentIndex < 0) {
                 mCurrentIndex = 0;
-                mIsThreadRunning = false;
+//                mIsThreadRunning = false;
             }
 
             if (mCanvas != null) {
@@ -308,13 +309,13 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                 }
             }
 
-//            if (mBitmap != null) {
-//                // 收回图片
-//                if (mBitmap.isRecycled()) {
-//                    mBitmap.recycle();
-//                    mBitmap = null;
-//                }
-//            }
+            if (mBitmap != null) {
+                // 收回图片
+                if (mBitmap.isRecycled()) {
+                    mBitmap.recycle();
+                    mBitmap = null;
+                }
+            }
         }
     }
 

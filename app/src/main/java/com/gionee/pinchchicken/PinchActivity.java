@@ -60,7 +60,7 @@ public class PinchActivity extends AppCompatActivity {
                 playMusic();
                 // mFrameAnimation.setCurrentIndext(0);
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
-                mFrameAnimation.start();
+//                mFrameAnimation.start();
 
                 break;
             case MotionEvent.ACTION_UP:
