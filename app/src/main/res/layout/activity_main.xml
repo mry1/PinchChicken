@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    tools:context="com.gionee.pinchchicken.PinchActivity">
+    tools:context="com.gionee.catchchick.PinchActivity">
 
 
-    <com.gionee.pinchchicken.widget.FrameAnimation
+    <com.gionee.catchchick.widget.FrameAnimation
         android:id="@+id/frame_animation"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

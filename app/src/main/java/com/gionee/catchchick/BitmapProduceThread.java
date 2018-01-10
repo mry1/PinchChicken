@@ -1,13 +1,9 @@
-package com.gionee.pinchchicken;
+package com.gionee.catchchick;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.SystemClock;
-import android.util.Log;
 import android.util.LruCache;
-
-import com.gionee.pinchchicken.widget.FrameAnimation;
 
 /**
  * Created by louis on 18-1-9.

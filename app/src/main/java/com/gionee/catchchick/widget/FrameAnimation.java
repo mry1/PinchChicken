@@ -1,4 +1,4 @@
-package com.gionee.pinchchicken.widget;
+package com.gionee.catchchick.widget;
 
 /**
  * Created by louis on 18-1-6.
@@ -10,21 +10,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.LruCache;
-import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.gionee.pinchchicken.BitmapProduceThread;
-import com.jakewharton.disklrucache.DiskLruCache;
+import com.gionee.catchchick.BitmapProduceThread;
 
 import java.util.ArrayList;
 
@@ -211,7 +205,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     }
 
     public Bitmap getBitmapFromMemCache(int key) {
-        return lruBitmap.get(key);
+        return lruBitmap == null ? null : lruBitmap.get(key);
     }
 
     /**

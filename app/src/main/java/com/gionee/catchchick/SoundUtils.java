@@ -1,4 +1,4 @@
-package com.gionee.pinchchicken;
+package com.gionee.catchchick;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
