@@ -58,8 +58,8 @@ public class CustomView extends View {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setColor(Color.RED);
-        paint.setStrokeWidth(5);//设置画笔宽度
-        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(2);//设置画笔宽度
+//        paint.setStyle(Paint.Style.STROKE);
 //        paint.setShadowLayer(10, 15, 15, Color.GREEN);//设置阴影
 
         float[] pts = {10, 10, 100, 100, 200, 200, 400, 400, 500, 500, 600, 600};
@@ -99,12 +99,48 @@ public class CustomView extends View {
 
 
         // 构造一个椭圆路径
-        RectF rect = new RectF(80, 50, 200, 400);
-        Path path = new Path();
-        path.addOval(rect, Path.Direction.CCW);
-        Region region = new Region();
-        region.setPath(path, new Region(new Rect(50, 50, 200, 200)));
-        drawRegion(canvas, paint, region);
+//        RectF rect = new RectF(80, 50, 200, 400);
+//        Path path = new Path();
+//        path.addOval(rect, Path.Direction.CCW);
+//        Region region = new Region();
+//        region.setPath(path, new Region(new Rect(50, 50, 200, 200)));
+//        drawRegion(canvas, paint, region);
+
+//        Rect rect1 = new Rect(100, 100, 400, 200);
+//        Rect rect2 = new Rect(200,0,300,300);
+//
+//        canvas.drawRect(rect1,paint);
+//        canvas.drawRect(rect2, paint);
+//
+//        Region region1 = new Region(rect1);
+//        Region region2 = new Region(rect2);
+//        region1.union(rect2);
+//
+//        Paint paint_fill = new Paint();
+//        paint_fill.setColor(Color.GREEN);
+//        paint_fill.setStyle(Paint.Style.FILL);
+//        drawRegion(canvas,paint_fill,region1);
+
+//        canvas.drawColor(Color.RED);
+//
+//        //保存当前画布大小即整屏
+//        canvas.save();
+//
+//        canvas.clipRect(new Rect(100, 100, 800, 800));
+//        canvas.drawColor(Color.GREEN);
+//
+//        //恢复整屏画布
+//        canvas.restore();
+//        canvas.drawColor(Color.BLUE);
+
+        canvas.drawColor(Color.WHITE);
+        canvas.translate(10, 10);
+        paint.setColor(Color.RED);
+        canvas.drawCircle(75, 75, 75, paint);
+        canvas.saveLayerAlpha(0, 0, 200, 200, 0x88, Canvas.ALL_SAVE_FLAG);
+        paint.setColor(Color.BLUE);
+        canvas.drawCircle(125, 125, 75, paint);
+        canvas.restore();
 
     }
 
