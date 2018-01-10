@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import com.gionee.catchchick.bean.BgSrc;
+import com.gionee.catchchick.source.BgSrc;
 import com.gionee.catchchick.widget.FrameAnimation;
 
 import butterknife.BindView;
