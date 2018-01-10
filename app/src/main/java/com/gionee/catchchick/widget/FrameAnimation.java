@@ -30,7 +30,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     public static boolean mIsDestroy = false;// 是否已经销毁
 
     private int[] mBitmapResourceIds;// 用于播放动画的图片资源id数组
-    private ArrayList<String> mBitmapResourcePaths;// 用于播放动画的图片资源path数组
     private int totalCount;//资源总数
     private Canvas mCanvas;
     private Bitmap mBitmap;// 显示的图片
@@ -49,6 +48,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     private AnimThread animThread;
     private BitmapFactory.Options options;
     private long l1;
+    private boolean isSetDrawing = true;// 当处于第一帧和最后一帧时不让界面不断重绘
 
     public FrameAnimation(Context context) {
         this(context, null);
@@ -80,7 +80,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
         // LruCache通过构造函数传入缓存值，以KB为单位。
         int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         // 使用最大可用内存值的1/2作为缓存的大小。
-        int cacheSize = maxMemory;
+        int cacheSize = maxMemory * 4 / 5;
         lruBitmap = new LruCache<Integer, Bitmap>(cacheSize) {
             @Override
             protected int sizeOf(Integer key, Bitmap bitmap) {
@@ -143,7 +143,10 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
     }
 
     public void clearLruCache() {
-        lruBitmap = null;
+        if (lruBitmap != null) {
+            lruBitmap.evictAll();
+            lruBitmap = null;
+        }
     }
 
     /**
@@ -177,7 +180,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
             l1 = SystemClock.currentThreadTimeMillis();
             // 每隔mGapTime刷新屏幕
             while (mIsThreadRunning) {
-//                Log.d(TAG, "========");
+                Log.d(TAG, "mCurrentIndex========" + mCurrentIndex);
                 drawView();
                 try {
 //                    Thread.sleep(mCurrentIndex);
@@ -213,7 +216,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
      */
     private void drawView() {
         // 无资源文件退出
-        if (mBitmapResourceIds == null && mBitmapResourcePaths == null) {
+        if (mBitmapResourceIds == null) {
             Log.e("frameview", "the bitmapsrcIDs is null");
 
             mIsThreadRunning = false;
@@ -233,20 +236,15 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                 mBitmap = getBitmapFromMemCache(mCurrentIndex);
                 if (mBitmapResourceIds != null && mBitmapResourceIds.length > 0) {
                     if (mBitmap == null) {
-                        Log.d(TAG, "bitmap == null======" + lruBitmap.size());
+//                        Log.d(TAG, "bitmap == null======" + lruBitmap.size());
                         long l = SystemClock.currentThreadTimeMillis();
                         mBitmap = BitmapFactory.decodeStream(getResources().openRawResource(mBitmapResourceIds[mCurrentIndex]), null, options);
-                        Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l));
+//                        Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l));
                         addBitmapToMemoryCache(mCurrentIndex, mBitmap);
 
                     } else {
-                        Log.d(TAG, "bitmap != null");
+//                        Log.d(TAG, "bitmap != null");
 
-                    }
-                } else if (mBitmapResourcePaths != null && mBitmapResourcePaths.size() > 0) {
-                    if (mBitmap == null) {
-                        mBitmap = BitmapFactory.decodeStream(getResources().openRawResource(mBitmapResourceIds[mCurrentIndex]), null, options);
-                        addBitmapToMemoryCache(mCurrentIndex, mBitmap);
                     }
                 }
 
@@ -254,6 +252,7 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                 mMatrix.postScale((float) getWidth() / mBitmap.getWidth(),
                         (float) getHeight() / mBitmap.getHeight());
                 long l = SystemClock.currentThreadTimeMillis();
+
                 mCanvas.drawBitmap(mBitmap, mMatrix, null);
 //                Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l));
 
@@ -272,9 +271,8 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
             switch (flag) {
                 case FLAG_PLAY_IN_ORDER:
                     mCurrentIndex++;
-
                     if (mCurrentIndex == 100) {
-                        Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l1));
+//                        Log.d(TAG, "=========" + (SystemClock.currentThreadTimeMillis() - l1));
                     }
                     break;
                 case FLAG_PLAY_IN_REVERSE_ORDER:
@@ -283,7 +281,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
                     break;
                 case FLAG_INIT:
                     mCurrentIndex = 0;
-//                    mIsThreadRunning = false;
                     break;
             }
 
@@ -293,7 +290,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
             }
             if (mCurrentIndex < 0) {
                 mCurrentIndex = 0;
-//                mIsThreadRunning = false;
             }
 
             if (mCanvas != null) {
@@ -326,15 +322,6 @@ public class FrameAnimation extends SurfaceView implements SurfaceHolder.Callbac
         }
     }
 
-    /**
-     * 设置动画播放素材的路径
-     *
-     * @param bitmapResourcePaths
-     */
-    public void setmBitmapResourcePath(ArrayList bitmapResourcePaths) {
-        this.mBitmapResourcePaths = bitmapResourcePaths;
-        totalCount = bitmapResourcePaths.size();
-    }
 
     /**
      * 设置每帧时间
