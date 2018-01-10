@@ -21,9 +21,11 @@ public class SoundUtils {
      * liminglin 添加变量
      */
     private static final String TAG = "SoundUtils";
-    private static SoundPool soundPool;
+    private static SoundPool gameSoundPool;
+    private static SoundPool backgroundSoundPool;
     private static int[] rawRes;
     private static int[] soundIDs;
+    private static int[] playID;
 
     /**
      * 播放声音 不能同时播放多种音频
@@ -37,10 +39,8 @@ public class SoundUtils {
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setOnCompletionListener(beepListener);
             try {
-                AssetFileDescriptor file = context.getResources().openRawResourceFd(
-                        rawId);
-                mediaPlayer.setDataSource(file.getFileDescriptor(),
-                        file.getStartOffset(), file.getLength());
+                AssetFileDescriptor file = context.getResources().openRawResourceFd(rawId);
+                mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
                 file.close();
                 mediaPlayer.setVolume(0.50f, 0.50f);
                 mediaPlayer.prepare();
@@ -62,13 +62,12 @@ public class SoundUtils {
 
     /**
      * liminglin
-     * <p>
-     * 单例获取SoundPool
      *
+     * 单例获取背景音乐的资源SoundPool
      * @return
      */
-    public static SoundPool getSoundPool() {
-        if (soundPool == null) {
+    public static SoundPool getBackgroundSoundPool(){
+        if (backgroundSoundPool == null) {
             if (Build.VERSION.SDK_INT >= 21) {
                 SoundPool.Builder builder = new SoundPool.Builder();
                 //传入音频的数量
@@ -78,14 +77,43 @@ public class SoundUtils {
                 //设置音频流的合适属性
                 attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
                 builder.setAudioAttributes(attrBuilder.build());
-                soundPool = builder.build();
+                backgroundSoundPool = builder.build();
             } else {
                 //第一个参数是可以支持的声音数量，第二个是声音类型，第三个是声音品质
-                soundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 5);
+                backgroundSoundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 5);
             }
-            return soundPool;
+            return backgroundSoundPool;
         } else {
-            return soundPool;
+            return backgroundSoundPool;
+        }
+    }
+
+    /**
+     * liminglin
+     *
+     * 单例获取播放过程中的资源SoundPool
+     *
+     * @return
+     */
+    public static SoundPool getGameSoundPool() {
+        if (gameSoundPool == null) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                SoundPool.Builder builder = new SoundPool.Builder();
+                //传入音频的数量
+                builder.setMaxStreams(1);
+                //AudioAttributes是一个封装音频各种属性的类
+                AudioAttributes.Builder attrBuilder = new AudioAttributes.Builder();
+                //设置音频流的合适属性
+                attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
+                builder.setAudioAttributes(attrBuilder.build());
+                gameSoundPool = builder.build();
+            } else {
+                //第一个参数是可以支持的声音数量，第二个是声音类型，第三个是声音品质
+                gameSoundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 5);
+            }
+            return gameSoundPool;
+        } else {
+            return gameSoundPool;
         }
     }
 
@@ -99,18 +127,53 @@ public class SoundUtils {
         for (int i = 0; i < rawIds.length; i++) {
             rawRes[i] = rawIds[i];
         }
+        soundIDs = new int[rawRes.length];
+        playID = new int[rawRes.length];
     }
 
-    private static void loadSoundPool(SoundPool soundPool, Context context) {
+    /**
+     * liminglin
+     *
+     * 加载背景音乐的 soundpool
+     * @param soundPool
+     * @param context
+     */
+    public static void loadBackgroundSoundPool(SoundPool soundPool,Context context){
         if (rawRes.length == 0) {
             return;
         }
 
-        for (int i = 0; i < rawRes.length; i++) {
-            //第一个参数Context,第二个参数资源Id，第三个参数优先级
-            soundIDs[i] = soundPool.load(context, rawRes[i], 1);
-            Log.d(TAG, "loadSoundPool: soundIDs[" + i + "] = " + soundIDs[i]);
+        soundIDs[0] = soundPool.load(context,rawRes[0],1);
+        Log.d(TAG, "loadGameSoundPool: soundIDs[" + 0 + "] = " + soundIDs[0]);
+
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                Log.d(TAG, "onLoadComplete: load background resources success");
+            }
+        });
+    }
+
+    /**
+     * liminglin
+     *
+     * 加载游戏音乐的 soundpool
+     * @param soundPool
+     * @param context
+     */
+    public static void loadGameSoundPool(SoundPool soundPool, Context context) {
+        if (rawRes.length == 0) {
+            return;
         }
+
+        for (int i = 1; i < rawRes.length; i++) {
+            //第一个参数Context,第二个参数资源Id，第三个参数优先级
+            if (soundIDs[i] == 0) {
+                soundIDs[i] = soundPool.load(context, rawRes[i], 1);
+                Log.d(TAG, "loadGameSoundPool: soundIDs[" + i + "] = " + soundIDs[i]);
+            }
+        }
+
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
@@ -121,48 +184,57 @@ public class SoundUtils {
 
     /**
      * liminglin
-     * <p>
-     * 开始播放声音，返回声音ID
      *
+     * 播放背景音乐
      * @param soundPool
      * @return
      */
-    public static int playSound(SoundPool soundPool, Context context, int playIndex) {
+    public static int playBackgroundSound(SoundPool soundPool) {
+        return playGameSound(soundPool, 1);
+    }
 
-        if (soundIDs.length == 0) {
-            loadSoundPool(soundPool, context);
+    /**
+     * liminglin
+     * <p>
+     * 播放游戏声音
+     * @param soundPool
+     * @return
+     */
+    public static int playGameSound(SoundPool soundPool, int playIndex) {
+
+        if (playIndex == 0) {
+            throw new IndexOutOfBoundsException("读取资源异常！");
         }
-        int[] playID = new int[soundIDs.length];
+
+        if (playIndex == 1) {
+            playID[playIndex - 1] = soundPool.play(soundIDs[playIndex - 1], 1, 1, 0, -1, 1);
+            return playID[playIndex - 1];
+        }
+
         //第一个参数id，即传入池中的顺序，第二个和第三个参数为左右声道，第四个参数为优先级，第五个是否循环播放，0不循环，-1循环
         //最后一个参数播放比率，范围0.5到2，通常为1表示正常播放
         switch (playIndex) {
-            case 0: // background
-                playID[0] = soundPool.play(soundIDs[0],1,1,0,-1,1);
-                Log.d(TAG, "playSound: playID[" + 0 + "] = " + playID[0]);
-                return playID[0];
-            case 1:
-                playID[1] = soundPool.play(soundIDs[1],1,1,0,-1,1);
-                Log.d(TAG, "playSound: playID[" + 1 + "] = " + playID[1]);
-                return playID[1];
             case 2:
-                playID[2] = soundPool.play(soundIDs[2],1,1,0,-1,1);
-                Log.d(TAG, "playSound: playID[" + 2 + "] = " + playID[2]);
-                return playID[2];
+                playID[playIndex - 1] = soundPool.play(soundIDs[playIndex - 1], 1, 1, 0, 1, 1);
+                break;
             case 3:
-                playID[3] = soundPool.play(soundIDs[3],1,1,0,-1,1);
-                Log.d(TAG, "playSound: playID[" + 3 + "] = " + playID[3]);
-                return playID[3];
+                playID[playIndex - 1] = soundPool.play(soundIDs[playIndex - 1], 1, 1, 0, 1, 1);
+                break;
             case 4:
-                playID[4] = soundPool.play(soundIDs[4],1,1,0,-1,1);
-                Log.d(TAG, "playSound: playID[" + 4 + "] = " + playID[4]);
-                return playID[4];
+                playID[playIndex - 1] = soundPool.play(soundIDs[playIndex - 1], 1, 1, 0, 1, 1);
+                break;
             case 5:
-                playID[5] = soundPool.play(soundIDs[5],1,1,0,-1,1);
-                Log.d(TAG, "playSound: playID[" + 5 + "] = " + playID[5]);
-                return playID[5];
+                playID[playIndex - 1] = soundPool.play(soundIDs[playIndex - 1], 1, 1, 0, 1, 1);
+                break;
+            case 6:
+                playID[playIndex - 1] = soundPool.play(soundIDs[playIndex - 1], 1, 1, 0, 1, 1);
+                break;
             default:
-                throw new IndexOutOfBoundsException("资源下标越界!");
+                throw new IndexOutOfBoundsException("读取资源异常！");
         }
+
+        Log.d(TAG, "playGameSound: playID[" + (playIndex - 1) + "] = " + playID[playIndex - 1]);
+        return playID[playIndex - 1];
     }
 
     /**

@@ -19,8 +19,6 @@ public class PinchActivity extends AppCompatActivity {
     @BindView(R.id.frame_animation)
     FrameAnimation mFrameAnimation;
 
-    private SoundPool soundPool;
-    private int playID = 0;
     private Unbinder unbinder;
 
     private final String TAG = PinchActivity.class.getSimpleName();
@@ -29,6 +27,8 @@ public class PinchActivity extends AppCompatActivity {
      * liminglin 添加声音相关变量
      */
     private int currentIndex;
+    private SoundPool gameSoundPool;
+    private SoundPool backgroundSoundPool;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,27 +36,27 @@ public class PinchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         unbinder = ButterKnife.bind(this);
 
-        initSoundPool();
         initAnimation();
     }
 
     /**
      * liminglin
-     *
+     * <p>
      * 初始化 SoundPool
      */
     private void initSoundPool() {
         SoundUtils.initSource(BgSrc.rawIds);
-        soundPool = SoundUtils.getSoundPool();
+        backgroundSoundPool = SoundUtils.getBackgroundSoundPool();
+        gameSoundPool = SoundUtils.getGameSoundPool();
+        SoundUtils.loadBackgroundSoundPool(backgroundSoundPool,this);
+        SoundUtils.loadGameSoundPool(gameSoundPool, this);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                Log.d(TAG, "onTouchEvent: soundPool = " + soundPool);
                 //手指放下
-                playID = SoundUtils.playSound(soundPool,this,R.raw.fechick);
                 playMusic();
                 // mFrameAnimation.setCurrentIndext(0);
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
@@ -67,7 +67,7 @@ public class PinchActivity extends AppCompatActivity {
                 //手指抬起
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_REVERSE_ORDER);
 
-                SoundUtils.stopSound(soundPool, playID);
+                //SoundUtils.stopSound(soundPool, playID);
 
                 break;
         }
@@ -98,18 +98,42 @@ public class PinchActivity extends AppCompatActivity {
 
     /**
      * liminglin
-     *
+     * <p>
      * 播放音乐
      */
-    private void playMusic(){
+    private void playMusic() {
         currentIndex = mFrameAnimation.getmCurrentIndex();
         Log.d(TAG, "playMusic: currentIndex = " + currentIndex);
+        int playIndex = 0;
+        if (currentIndex == 0) {
+            return;
+        } else if (currentIndex > 0 && currentIndex <= 20) {
+            playIndex = 2;
+        } else if (currentIndex > 20 && currentIndex <= 40) {
+            playIndex = 3;
+        } else if (currentIndex > 40 && currentIndex <= 60) {
+            playIndex = 4;
+        } else if (currentIndex > 60 && currentIndex <= 80) {
+            playIndex = 5;
+        } else if (currentIndex > 80 && currentIndex <= 100) {
+            playIndex = 6;
+        }
+        SoundUtils.playGameSound(gameSoundPool, playIndex);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initSoundPool();
+        SoundUtils.playBackgroundSound(backgroundSoundPool);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+        backgroundSoundPool.release();
+        gameSoundPool.release();
     }
 
 
