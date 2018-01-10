@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import com.gionee.catchchick.bean.BgSrc;
+import com.gionee.catchchick.source.BgSrc;
 import com.gionee.catchchick.widget.FrameAnimation;
 
 import butterknife.BindView;
@@ -58,7 +58,7 @@ public class PinchActivity extends AppCompatActivity {
             case MotionEvent.ACTION_DOWN:
                 //手指放下
                 playMusic();
-                // mFrameAnimation.setCurrentIndext(0);
+                // mFrameAnimation.setCurrentIndex(0);
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
 //                mFrameAnimation.start();
 

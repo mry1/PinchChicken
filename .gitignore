@@ -1,6 +1,5 @@
 # 忽略*.o和*.a文件
  *.iml
- local.properties
 # 忽略*.b和*.B文件，my.b除外
 # *.[bB]
 # !my.b
@@ -17,3 +16,5 @@ build
 .idea
 *.iml
 app/app.iml
+
+local.properties

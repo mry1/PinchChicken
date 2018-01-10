@@ -1,4 +1,4 @@
-package com.gionee.catchchick.bean;
+package com.gionee.catchchick.source;
 
 
 import com.gionee.catchchick.R;

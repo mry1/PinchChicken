@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.LruCache;
 
+import com.gionee.catchchick.utils.CacheUtils;
+
 /**
  * Created by louis on 18-1-9.
  */
@@ -14,13 +16,11 @@ public class BitmapProduceThread extends Thread {
     private int mCurrentIndex = 0;
     private Context context;
     private final String TAG = BitmapProduceThread.class.getSimpleName();
-    LruCache<Integer, Bitmap> lruBitmap;
     BitmapFactory.Options options;
 
-    public BitmapProduceThread(int index, Context context, LruCache<Integer, Bitmap> lruBitmap, BitmapFactory.Options options, int[] mBitmapResourceIds) {
+    public BitmapProduceThread(int index, Context context, BitmapFactory.Options options, int[] mBitmapResourceIds) {
         this.context = context;
         this.mCurrentIndex = index;
-        this.lruBitmap = lruBitmap;
         this.options = options;
         this.mBitmapResourceIds = mBitmapResourceIds;
     }
@@ -33,7 +33,7 @@ public class BitmapProduceThread extends Thread {
 //            try {
             // 实例化Bitmap
             Bitmap mBitmap = BitmapFactory.decodeStream(context.getResources().openRawResource(mBitmapResourceIds[mCurrentIndex]), null, options);
-            addBitmapToMemoryCache(mCurrentIndex, mBitmap);
+            CacheUtils.addBitmapToMemoryCache(mCurrentIndex, mBitmap);
             mCurrentIndex++;
 
             if (mBitmap != null) {
@@ -49,13 +49,4 @@ public class BitmapProduceThread extends Thread {
 
     }
 
-    public Bitmap getBitmapFromMemCache(int key) {
-        return lruBitmap.get(key);
-    }
-
-    public void addBitmapToMemoryCache(int key, Bitmap bitmap) {
-        if (getBitmapFromMemCache(key) == null) {
-            lruBitmap.put(key, bitmap);
-        }
-    }
 }
