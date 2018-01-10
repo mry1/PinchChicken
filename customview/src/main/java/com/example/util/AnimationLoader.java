@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
 
 public class AnimationLoader {
     private static final String TAG = "AnimationLoader";
-    private static final int DECODE_THREADS = 2;
+    private static final int DECODE_THREADS = 3;
     private static final int MSG_LOAD = 1;
     private static final int MSG_LOAD_SINGLE = 2;
     private static AnimationLoader sInstance;
@@ -174,12 +174,14 @@ public class AnimationLoader {
                 String path;
                 String[] resList = mDefaultAnimation.getResList();
                 if (resList != null) {
+                    int scope = 7;
+                    int half = scope>> 1;
                     if (mFirst || (!mAnimationBitmap.contain(resId) && jobs.get(resId, -1) == -1)) {
                         mFirst = false;
                         mAnimationBitmap.clear();
                         Log.d("check", "loadResources full ");
-                        int start = resId - 3 < 0 ? 0 : resId - 3;
-                        int end = resId + 3 > resList.length - 1 ? resList.length - 1 : resId + 3;
+                        int start = resId - half < 0 ? 0 : resId - half;
+                        int end = resId + half > resList.length - 1 ? resList.length - 1 : resId + half;
                         Log.d("check", "loadResources: key " + resId + "end " + end);
                         for (int i = start; i <= end; i++) {
                             path = parentPath + File.separator + resList[i];
@@ -189,8 +191,8 @@ public class AnimationLoader {
                             }
                         }
                     } else {
-                        int right = resId + 3, left = resId - 3;
-                        int needLoad = 0;
+                        int right = resId + half, left = resId - half;
+                        int needLoad = -1;
                         if (mAnimationBitmap.contain(left) && !mAnimationBitmap.contain(right)) {
                             if (right < resList.length) {
                                 needLoad = right;
@@ -211,10 +213,10 @@ public class AnimationLoader {
                             }
                         }
 
-                        path = parentPath + File.separator + resList[needLoad];
-                        if (jobs.get(needLoad, -1) == -1 && needLoad != 0) {
+                        if (jobs.get(needLoad, -1) == -1 && needLoad != -1) {
                             jobs.put(needLoad, needLoad);
                             Log.d("check", "loadResources: load " + needLoad);
+                            path = parentPath + File.separator + resList[needLoad];
                             mThreadPool.execute(new DecodeBitmapThread(assetManager, path, needLoad));
                         }
 
@@ -269,7 +271,7 @@ public class AnimationLoader {
                 Bitmap bitmap = decodeBitmapFromStream(inputStream);
                 mAnimationBitmap.put(key, bitmap);
                 jobs.delete(key);
-                Log.d("check", "job finish "+key);
+                Log.d("check", "job finish " + key);
                 inputStream.close();
             } catch (Exception e) {
                 e.printStackTrace();
