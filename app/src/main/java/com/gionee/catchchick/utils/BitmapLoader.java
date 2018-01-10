@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
  */
 
 public class BitmapLoader {
-    private static final String TAG = "AnimationLoader";
+    private static final String TAG = "BitmapLoader";
     //    private static final int DECODE_THREADS =1;
     private static BitmapLoader sInstance;
     private final BitmapCache mCache = new BitmapCache();
@@ -78,7 +78,6 @@ public class BitmapLoader {
                         if (left - 1 >= 0) {
                             mCache.remove(left - 1);
                         }
-                        Log.d("weisc_final", "key " + key + " needLoad: " + needLoad + " remove: " + (left - 1));
                     }
                 } else {
                     if (left >= 0) {
@@ -86,7 +85,6 @@ public class BitmapLoader {
                         if (right + 1 < mTotalCount) {
                             mCache.remove(right + 1);
                         }
-                        Log.d("weisc_final", "key " + key + " needLoad: " + needLoad + " remove: " + (right + 1));
                     }
                 }
                 if (needLoad != -1) {
@@ -121,9 +119,7 @@ public class BitmapLoader {
         @Override
         public void run() {
             try {
-                Log.d("weisc_final", "run: start decode " + key);
                 Bitmap bitmap = BitmapCache.decodeBitmapFromStream(inputStream);
-                Log.d("weisc_final", "run: finish decode " + key);
                 mCache.put(key, bitmap);
             } catch (Exception e) {
                 e.printStackTrace();

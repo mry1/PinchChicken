@@ -9,6 +9,7 @@ import android.util.SparseIntArray;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.lang.ref.SoftReference;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,7 +67,7 @@ public class BitmapCache {
     }
 
     public void logMap(String msg) {
-        Log.d("weisc_final", msg + " testMap: " + testMap + " removeInFuture: " + removeInFuture);
+        Log.d("weisc_final", msg + " testMap: " + testMap + " removeInFuture: " + removeInFuture + " recycle size: " + recycleBitmap.size() + " cache size: " + cache.size());
     }
 
     public synchronized void put(int key, Bitmap bitmap) {
@@ -81,16 +82,13 @@ public class BitmapCache {
                 removeInFuture.put(key, needRemoveCount);
             }
         }
-        Log.d("weisc_final", "put: " + key + " after map " + testMap);
-//        logMap();
+        logMap("");
         notify();
     }
 
 
     public synchronized Bitmap get(int key) {
         Bitmap bitmap;
-        Log.d("weisc_final", "get: " + key);
-        logMap("before");
         while ((cache.get(key)) == null) {
             try {
                 wait();
@@ -100,7 +98,6 @@ public class BitmapCache {
         }
 
         bitmap = cache.get(key);
-        logMap("after");
         notify();
         return bitmap;
     }
