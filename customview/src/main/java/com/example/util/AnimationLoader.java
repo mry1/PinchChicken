@@ -236,6 +236,8 @@ public class AnimationLoader {
     public Bitmap decodeBitmapFromStream(InputStream inputStream) throws IOException {
         long start = System.currentTimeMillis();
         final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 1;
+        options.inPreferredConfig = Bitmap.Config.ALPHA_8;
         addInBitmapOptions(options);
         Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
         Log.d(TAG, "decode From Stream" + (System.currentTimeMillis() - start));
