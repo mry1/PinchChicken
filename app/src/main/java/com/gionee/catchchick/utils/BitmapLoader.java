@@ -53,8 +53,8 @@ public class BitmapLoader {
     public void loadResources(Context context, int from, int to) {
         if (mBitmapResourceIds != null) {
             from = from < 0 ? 0 : from;
-            to = to < mTotalCount ? to : mTotalCount;
-            for (int i = from; i < to; i++) {
+            to = to < mTotalCount ? to : mTotalCount-1;
+            for (int i = from; i <= to; i++) {
                 InputStream inputStream = context.getResources().openRawResource(mBitmapResourceIds[i]);
                 mThreadPool.execute(new DecodeBitmapThread(inputStream, i));
             }
@@ -67,8 +67,7 @@ public class BitmapLoader {
             int half = scope >> 1;
             if (mFirst) {
                 mFirst = false;
-                loadResources(context, key, key + scope);
-                return mCache.get(0);
+                loadResources(context, key-half, key + half);
             } else {
                 int right = key + half, left = key - half;
                 int needLoad = -1;
