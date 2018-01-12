@@ -1,4 +1,4 @@
-package com.gionee.catchchick;
+package com.gionee.catchchick.utils;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -166,13 +166,14 @@ public class SoundUtils {
             return;
         }
 
-        for (int i = 1; i < rawRes.length; i++) {
+        /*for (int i = 1; i < rawRes.length; i++) {
             //第一个参数Context,第二个参数资源Id，第三个参数优先级
             if (soundIDs[i] == 0) {
                 soundIDs[i] = soundPool.load(context, rawRes[i], 1);
-                Log.d(TAG, "loadGameSoundPool: soundIDs[" + i + "] = " + soundIDs[i]);
             }
-        }
+        }*/
+        soundIDs[1] = soundPool.load(context,rawRes[2],1);
+        Log.d(TAG, "loadGameSoundPool: soundIDs[" + 1 + "] = " + soundIDs[1]);
 
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
@@ -190,7 +191,8 @@ public class SoundUtils {
      * @return
      */
     public static int playBackgroundSound(SoundPool soundPool) {
-        return playGameSound(soundPool, 1);
+        playID[0] = soundPool.play(soundIDs[0],1,1,0,-1,1);
+        return playID[0];
     }
 
     /**
@@ -200,13 +202,13 @@ public class SoundUtils {
      * @param soundPool
      * @return
      */
-    public static int playGameSound(SoundPool soundPool, int playIndex) {
+    public static int playGameSound(SoundPool soundPool) {
 
-        if (playIndex == 0) {
-            throw new IndexOutOfBoundsException("读取资源异常！");
-        }
+        playID[1] = soundPool.play(soundIDs[1],1,1,0,1,1);
 
-        if (playIndex == 1) {
+        return playID[1];
+
+        /*if (playIndex == 1) {
             playID[playIndex - 1] = soundPool.play(soundIDs[playIndex - 1], 1, 1, 0, -1, 1);
             return playID[playIndex - 1];
         }
@@ -234,7 +236,7 @@ public class SoundUtils {
         }
 
         Log.d(TAG, "playGameSound: playID[" + (playIndex - 1) + "] = " + playID[playIndex - 1]);
-        return playID[playIndex - 1];
+        return playID[playIndex - 1];*/
     }
 
     /**
@@ -244,7 +246,5 @@ public class SoundUtils {
 
         Log.d(TAG, "stopSound: playID + " + playID);
         soundPool.stop(playID);
-        //回收Pool中的资源
-        soundPool.release();
     }
 }

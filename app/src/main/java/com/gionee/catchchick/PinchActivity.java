@@ -3,10 +3,10 @@ package com.gionee.catchchick;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.gionee.catchchick.source.BgSrc;
+import com.gionee.catchchick.utils.SoundUtils;
 import com.gionee.catchchick.widget.FrameAnimation;
 
 import butterknife.BindView;
@@ -27,6 +27,7 @@ public class PinchActivity extends AppCompatActivity {
      * liminglin 添加声音相关变量
      */
     private int currentIndex;
+    private int gamePlayID;
     private SoundPool gameSoundPool;
     private SoundPool backgroundSoundPool;
 
@@ -57,7 +58,8 @@ public class PinchActivity extends AppCompatActivity {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //手指放下
-                playMusic();
+                gamePlayID = SoundUtils.playGameSound(gameSoundPool);
+                // TODO 当 currentIndex = 100 的时候停止播放音频
                 // mFrameAnimation.setCurrentIndex(0);
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_ORDER);
 //                mFrameAnimation.start();
@@ -67,7 +69,7 @@ public class PinchActivity extends AppCompatActivity {
                 //手指抬起
                 mFrameAnimation.setFlag(FrameAnimation.FLAG_PLAY_IN_REVERSE_ORDER);
 
-                //SoundUtils.stopSound(soundPool, playID);
+                SoundUtils.stopSound(gameSoundPool,gamePlayID);
 
                 break;
         }
@@ -96,30 +98,8 @@ public class PinchActivity extends AppCompatActivity {
         mFrameAnimation.setGapTime(150);
     }
 
-    /**
-     * liminglin
-     * <p>
-     * 播放音乐
-     */
-    private void playMusic() {
-        currentIndex = mFrameAnimation.getmCurrentIndex();
-        Log.d(TAG, "playMusic: currentIndex = " + currentIndex);
-        int playIndex = 0;
-        if (currentIndex == 0) {
-            return;
-        } else if (currentIndex > 0 && currentIndex <= 20) {
-            playIndex = 2;
-        } else if (currentIndex > 20 && currentIndex <= 40) {
-            playIndex = 3;
-        } else if (currentIndex > 40 && currentIndex <= 60) {
-            playIndex = 4;
-        } else if (currentIndex > 60 && currentIndex <= 80) {
-            playIndex = 5;
-        } else if (currentIndex > 80 && currentIndex <= 100) {
-            playIndex = 6;
-        }
-        SoundUtils.playGameSound(gameSoundPool, playIndex);
-    }
+
+
 
     @Override
     protected void onResume() {
