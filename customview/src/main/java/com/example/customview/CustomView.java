@@ -1,16 +1,17 @@
 package com.example.customview;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.graphics.Region;
-import android.graphics.RegionIterator;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -19,6 +20,11 @@ import android.view.View;
 
 public class CustomView extends View {
     private int DEFAULT_LENGTH = 800;
+    private int width = 400;
+    private int height = 400;
+    private Bitmap dstBmp;
+    private Bitmap srcBmp;
+    private Paint mPaint;
 
     public CustomView(Context context) {
         this(context, null);
@@ -30,7 +36,10 @@ public class CustomView extends View {
 
     public CustomView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        srcBmp = makeSrc(width, height);
+        dstBmp = makeDst(width, height);
+        mPaint = new Paint();
     }
 
     @Override
@@ -52,106 +61,42 @@ public class CustomView extends View {
 
     }
 
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setColor(Color.RED);
-        paint.setStrokeWidth(2);//设置画笔宽度
-//        paint.setStyle(Paint.Style.STROKE);
-//        paint.setShadowLayer(10, 15, 15, Color.GREEN);//设置阴影
-
-        float[] pts = {10, 10, 100, 100, 200, 200, 400, 400, 500, 500, 600, 600};
-
-        //设置画布背景颜色
-        canvas.drawRGB(255, 255, 255);
-//        canvas.drawCircle(190, 200, 150, paint);
-//        canvas.drawLine(100, 100, 200, 200, paint);
-//        canvas.drawLines(pts, paint);
-
-//        RectF rect1 = new RectF(100, 10, 300, 100);
-//        canvas.drawArc(rect1, 0, 270, true, paint);
-//        canvas.drawRect(rect1, paint);
-
-
-//        Path path = new Path();
-//        path.moveTo(10, 10);
-//        path.lineTo(100, 100);
-//        path.lineTo(50,100);
-//        path.close();
-//        canvas.drawPath(path, paint);
-
-//        Path CCWRecPath = new Path();//逆时针画rect
-//        RectF rect1 = new RectF(400, 300, 600, 400);
-//        CCWRecPath.addRect(rect1, Path.Direction.CCW);
-//        canvas.drawPath(CCWRecPath, paint);
-//
-////         依据路径生成文字
-//        paint.setTextSize(40);
-//        paint.setColor(Color.BLACK);
-//        canvas.drawTextOnPath("风萧萧兮易水寒", CCWRecPath, 0, 20, paint);
-
-//        paint.setTextSize(80);//设置文字大小
-//        //绘图样式，设置为填充
-//        paint.setStyle(Paint.Style.FILL);
-//        canvas.drawText("欢迎光临Harvic的博客", 10, 100, paint);
-
-
-        // 构造一个椭圆路径
-//        RectF rect = new RectF(80, 50, 200, 400);
-//        Path path = new Path();
-//        path.addOval(rect, Path.Direction.CCW);
-//        Region region = new Region();
-//        region.setPath(path, new Region(new Rect(50, 50, 200, 200)));
-//        drawRegion(canvas, paint, region);
-
-//        Rect rect1 = new Rect(100, 100, 400, 200);
-//        Rect rect2 = new Rect(200,0,300,300);
-//
-//        canvas.drawRect(rect1,paint);
-//        canvas.drawRect(rect2, paint);
-//
-//        Region region1 = new Region(rect1);
-//        Region region2 = new Region(rect2);
-//        region1.union(rect2);
-//
-//        Paint paint_fill = new Paint();
-//        paint_fill.setColor(Color.GREEN);
-//        paint_fill.setStyle(Paint.Style.FILL);
-//        drawRegion(canvas,paint_fill,region1);
-
-//        canvas.drawColor(Color.RED);
-//
-//        //保存当前画布大小即整屏
-//        canvas.save();
-//
-//        canvas.clipRect(new Rect(100, 100, 800, 800));
 //        canvas.drawColor(Color.GREEN);
-//
-//        //恢复整屏画布
-//        canvas.restore();
-//        canvas.drawColor(Color.BLUE);
 
-        canvas.drawColor(Color.WHITE);
-        canvas.translate(10, 10);
-        paint.setColor(Color.RED);
-        canvas.drawCircle(75, 75, 75, paint);
-        canvas.saveLayerAlpha(0, 0, 200, 200, 0x88, Canvas.ALL_SAVE_FLAG);
-        paint.setColor(Color.BLUE);
-        canvas.drawCircle(125, 125, 75, paint);
-        canvas.restore();
 
+        canvas.drawRect(100,100,300,300,mPaint);
+
+        int layerID = canvas.saveLayerAlpha(0,0,600,800,0x88,Canvas.ALL_SAVE_FLAG);
+        mPaint.setColor(Color.GREEN);
+        canvas.drawRect(200,200,400,400,mPaint);
+        canvas.restoreToCount(layerID);
+        canvas.drawColor(Color.BLUE);
     }
 
-    private void drawRegion(Canvas canvas, Paint paint, Region region) {
-        RegionIterator regionIterator = new RegionIterator(region);
-        Rect rect = new Rect();
-        while (regionIterator.next(rect)) {
-            canvas.drawRect(rect, paint);
-        }
+    // create a bitmap with a circle, used for the "dst" image
+    static Bitmap makeDst(int w, int h) {
+        Bitmap bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bm);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
 
+        p.setColor(0xFFFFCC44);
+        c.drawOval(new RectF(0, 0, w, h), p);
+        return bm;
+    }
 
+    // create a bitmap with a rect, used for the "src" image
+    static Bitmap makeSrc(int w, int h) {
+        Bitmap bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bm);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        p.setColor(0xFF66AAFF);
+        c.drawRect(0, 0, w, h, p);
+        return bm;
     }
 
 
