@@ -1,4 +1,4 @@
-package com.louis.pinchchicken;
+package com.example.pinchchicken;
 
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
@@ -18,8 +18,8 @@ import android.view.animation.BounceInterpolator;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.louis.pinchchicken.widget.PointView;
-import com.louis.pinchchicken.widget.PressButton;
+import com.example.pinchchicken.widget.PointView;
+import com.example.pinchchicken.widget.PressButton;
 
 public class PinchActivity extends AppCompatActivity {
 

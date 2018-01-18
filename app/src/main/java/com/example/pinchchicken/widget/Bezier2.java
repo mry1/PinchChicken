@@ -1,4 +1,4 @@
-package com.louis.pinchchicken.widget;
+package com.example.pinchchicken.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;

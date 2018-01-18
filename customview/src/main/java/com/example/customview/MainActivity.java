@@ -1,4 +1,4 @@
-package com.louis.customview;
+package com.example.customview;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

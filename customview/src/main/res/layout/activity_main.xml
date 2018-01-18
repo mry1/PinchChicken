@@ -11,8 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onClick"
-        android:visibility="gone"
-        android:text="reset" />
+        android:text="reset"
+        android:visibility="gone" />
 
     <com.example.customview.CustomView
         android:id="@+id/frame_animation"
@@ -20,8 +20,14 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
+    <!--<com.louis.customview.ZoomImageView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:src="@drawable/screenshot1" />-->
+
     <com.example.customview.RedPointView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 </android.support.constraint.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.louis.pinchchicken.widget;
+package com.example.pinchchicken.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.ProgressBar;
 
-import com.louis.pinchchicken.R;
+import com.example.pinchchicken.R;
 
 
 public class HorizontalProgressBarWithNumber extends ProgressBar {

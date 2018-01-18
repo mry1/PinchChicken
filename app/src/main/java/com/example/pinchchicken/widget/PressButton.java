@@ -1,4 +1,4 @@
-package com.louis.pinchchicken.widget;
+package com.example.pinchchicken.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.louis.pinchchicken;
+package com.example.pinchchicken;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.louis.customview;
+package com.example.customview;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.louis.pinchchicken.bean;
+package com.example.pinchchicken.bean;
 
 /**
  * Created by louis on 17-12-23.

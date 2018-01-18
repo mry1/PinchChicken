@@ -1,4 +1,4 @@
-package com.louis.customview;
+package com.example.customview;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

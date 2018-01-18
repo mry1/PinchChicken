@@ -1,4 +1,4 @@
-package com.louis.pinchchicken;
+package com.example.pinchchicken;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
