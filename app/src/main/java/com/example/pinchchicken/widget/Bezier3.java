@@ -1,6 +1,5 @@
-package com.example.pinchchicken.widget;
+package com.louis.pinchchicken.widget;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;

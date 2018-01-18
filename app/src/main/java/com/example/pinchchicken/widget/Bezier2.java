@@ -1,4 +1,4 @@
-package com.example.pinchchicken.widget;
+package com.louis.pinchchicken.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -7,12 +7,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.ViewConfiguration;
-import android.widget.Scroller;
 
 /**
  * Created by louis on 17-12-28.

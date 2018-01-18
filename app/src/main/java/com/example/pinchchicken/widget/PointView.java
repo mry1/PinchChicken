@@ -1,4 +1,4 @@
-package com.example.pinchchicken.widget;
+package com.louis.pinchchicken.widget;
 
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
@@ -9,12 +9,8 @@ import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.BounceInterpolator;
 
-import com.example.pinchchicken.bean.Point;
-
-import java.text.DecimalFormat;
+import com.louis.pinchchicken.bean.Point;
 
 /**
  * Created by louis on 17-12-23.

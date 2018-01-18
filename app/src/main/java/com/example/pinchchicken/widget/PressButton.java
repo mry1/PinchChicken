@@ -1,9 +1,7 @@
-package com.example.pinchchicken.widget;
+package com.louis.pinchchicken.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.Button;
