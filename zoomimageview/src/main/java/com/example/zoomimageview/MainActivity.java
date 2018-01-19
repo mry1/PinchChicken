@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
     private int[] mImgs = new int[]{R.drawable.screenshot1, R.drawable.screenshot1,
-            R.drawable.ic_launcher};
+            R.drawable.screenshot1};
     private ImageView[] mImageViews = new ImageView[mImgs.length];
 
     @Override
