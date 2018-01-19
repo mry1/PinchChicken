@@ -106,42 +106,43 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
                 if (isScaling)
                     return true;
                 final float scale = getScale();
-                final float x = getX();
-                final float y = getY();
+                final float x = e.getX();
+                final float y = e.getY();
                 final ValueAnimator animator;
+                System.out.println("--------" + x + "--------" + y);
 
-                final float i;
                 if (scale < mMidScale) {
                     animator = ValueAnimator.ofFloat(scale, mMidScale);
-                    i = mMidScale;
+
+//                    mScaleMatrix.postScale(mMidScale/getScale(), mMidScale/getScale(), x, y);
+//                    checkBorderAndCenterWhenScale();
+//                    setImageMatrix(mScaleMatrix);
                 } else if (scale >= mMidScale && scale < mMaxScale) {
                     animator = ValueAnimator.ofFloat(scale, mMaxScale);
-                    i = mMaxScale;
+
                 } else {
                     animator = ValueAnimator.ofFloat(scale, mInitScale);
-                    i = mInitScale;
+
                 }
                 isScaling = true;
                 animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
-                        // TODO: 18-1-18
                         float scaleValue = (float) animation.getAnimatedValue();
-                        System.out.println("=======" + scaleValue);
+//                        mScaleMatrix.reset();
+                        setScaleDefault();
+                        System.out.println("=========" + x + "=======" + y);
                         mScaleMatrix.postScale(scaleValue, scaleValue, x, y);
                         checkBorderAndCenterWhenScale();
                         setImageMatrix(mScaleMatrix);
                     }
                 });
-                animator.setDuration(500);
+                animator.setDuration(200);
                 animator.start();
                 animator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
-                        mScaleMatrix.postScale(i, i, x, y);
-                        checkBorderAndCenterWhenScale();
-                        setImageMatrix(mScaleMatrix);
                         isScaling = false;
                         animator.removeAllUpdateListeners();
 
@@ -152,31 +153,6 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
             }
         });
         mScaledTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-    }
-
-    private class ScaleRunnable implements Runnable {
-        // 缩放的中心
-        private float x;
-        private float y;
-        private float targetScale;
-
-        /**
-         * 传入目标缩放值，根据目标值与当前值判断该放大还是该缩小
-         *
-         * @param targetScale
-         * @param x
-         * @param y
-         */
-        public ScaleRunnable(float targetScale, float x, float y) {
-            this.targetScale = targetScale;
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public void run() {
-
-        }
     }
 
     @Override
@@ -221,7 +197,6 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
             /**
              * 得到初始化缩放比例
              */
-            System.out.println("-----------------------" + scale);
             mInitScale = scale;
             mMidScale = 2 * scale;
             mMaxScale = 4 * scale;
@@ -241,8 +216,8 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mScaleGestureDetector.onTouchEvent(event);
         mGestureDetector.onTouchEvent(event);
+        mScaleGestureDetector.onTouchEvent(event);
 
         // 多点触控焦点
         float x = 0;
@@ -258,6 +233,10 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
         }
 
         switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                getParent().requestDisallowInterceptTouchEvent(true);
+
+                break;
             case MotionEvent.ACTION_MOVE:
                 float dx = 0;
                 float dy = 0;
@@ -268,9 +247,11 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
                 if (isCanDrag && isMoveAction(dx, dy)) {
                     RectF rectF = getDrawableRectF();
                     if (getDrawable() != null) {
+                        getParent().requestDisallowInterceptTouchEvent(true);
                         isCheckLeftAndRight = isCheckTopAndBottom = true;
                         // 图片宽度小于控件宽度，不允许移动
                         if (rectF.width() < width) {
+                            getParent().requestDisallowInterceptTouchEvent(false);
                             isCheckLeftAndRight = false;
                             dx = 0;
                         }
@@ -278,6 +259,10 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
                         if (rectF.height() < height) {
                             isCheckTopAndBottom = false;
                             dy = 0;
+                        }
+
+                        if (rectF.left == 0 || rectF.right == width) {
+                            getParent().requestDisallowInterceptTouchEvent(false);
                         }
 
                         // 检查边界
@@ -324,7 +309,7 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
             }
         }
         // 如果宽度或者高度小于控件的宽度或高度，则让其居中
-        if (rectF.width() < width) {
+        if (rectF.width() <= width) {
             dx = width / 2f - rectF.right + rectF.width() / 2f;
         }
         if (rectF.height() < height) {
@@ -376,6 +361,17 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
         float[] values = new float[9];
         mScaleMatrix.getValues(values);
         return values[Matrix.MSCALE_X];
+    }
+
+    /**
+     * 将矩阵的scale置为默认值
+     */
+    public void setScaleDefault() {
+        float[] values = new float[9];
+        mScaleMatrix.getValues(values);
+        values[Matrix.MSCALE_X] = 1;
+        values[Matrix.MSCALE_Y] = 1;
+        mScaleMatrix.setValues(values);
     }
 
     @Override
